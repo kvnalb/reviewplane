@@ -25,3 +25,9 @@
 - Left the generated binary Vite hero asset in the source tree because the editing policy does not permit removing binary files with the patch workflow. It is unreferenced and absent from the production bundle; all text-based Vite starter assets were removed or replaced.
 - The repository's eventual GitHub URL is not known, so the navigation labels it as “soon” instead of linking to an unrelated repository.
 - Browser verification covered 1280 px desktop, 768 px tablet, and 390 px mobile layouts; primary navigation, preview-tool selection, batch expansion, command-copy feedback, skip-link targeting, focus styles, and console output were checked. No horizontal overflow or browser warnings/errors remained.
+
+## Phase 1
+
+- Implemented `wait_for_review` as a real, development-only WebMCP probe with a retained Promise resolver, execution cancellation handling, reload cleanup, and single-waiter enforcement.
+- Tested the probe in the target Codex in-app browser at `localhost:5173`. The page was a secure, origin-isolated context running Chrome 151.0.0.0, but `document.modelContext` was absent.
+- Stopped before Phase 2 because the target host could not discover a page tool. Pending duration, same-turn resumption, cancellation, reload, and simultaneous-host-call behavior remain unverified and are not simulated.

@@ -7,6 +7,7 @@ import '@fontsource/ibm-plex-sans/latin-600.css'
 import '@fontsource/ibm-plex-mono/latin-400.css'
 import '@fontsource/ibm-plex-mono/latin-500.css'
 import './App.css'
+import { WebMcpProbe } from './WebMcpProbe'
 
 type IconName =
   | 'arrow'
@@ -302,6 +303,8 @@ function App() {
             <div><span>03</span><h3>Your coding agent</h3><p>Edit the repository, run checks, and report what changed.</p></div>
           </div>
         </section>
+
+        <WebMcpProbe />
 
         <section className="closing-section ruled-section">
           <div><p className="eyebrow">Make the next edit visible</p><h2>Turn “something feels off” into a correction your agent can act on.</h2></div>
