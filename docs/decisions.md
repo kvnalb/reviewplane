@@ -16,3 +16,12 @@
 - No screenshot is an approved baseline input. The approved-candidate references are the written comparison in `docs/design-decision.md` and the ReviewPlane-specific tokens in `apps/landing/DESIGN.md`.
 - Added a dated alternatives analysis to the product brief using official sources for v0, Lovable, stagewise, Onlook, and React Grab. The analysis treats stagewise as the closest documented end-to-end substitute and avoids claiming that visual selection or source mapping is unique to ReviewPlane.
 - Revised the landing-page copy using Joanna Wiebe's Stripe Atlas guide. The brief now defines one primary reader, one idea, one promise, and one offer; leads with the source-hunting problem; keeps sentences to one job; and places specific actions after the relevant explanation. The claims boundary remains unchanged.
+
+## Phase 0C
+
+- Built the baseline in one normal implementation and verification cycle from the approved brief, design decision, `DESIGN.md`, and generation prompt. No ReviewPlane product runtime or WebMCP behavior was added early.
+- Used self-hosted Fontsource packages for the approved Familjen Grotesk and IBM Plex families so the page does not depend on a third-party font request. Latin subsets keep the production bundle focused.
+- Rendered the product explanation as CSS and inline SVG interface diagrams. They are explanatory previews, not screenshots or claims that the later overlay and handoff phases already work.
+- Left the generated binary Vite hero asset in the source tree because the editing policy does not permit removing binary files with the patch workflow. It is unreferenced and absent from the production bundle; all text-based Vite starter assets were removed or replaced.
+- The repository's eventual GitHub URL is not known, so the navigation labels it as “soon” instead of linking to an unrelated repository.
+- Browser verification covered 1280 px desktop, 768 px tablet, and 390 px mobile layouts; primary navigation, preview-tool selection, batch expansion, command-copy feedback, skip-link targeting, focus styles, and console output were checked. No horizontal overflow or browser warnings/errors remained.
