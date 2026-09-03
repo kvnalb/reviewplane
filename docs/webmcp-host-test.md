@@ -1,7 +1,7 @@
 # WebMCP host test
 
 Date: 2026-09-03  
-Result: **Pass for pending wait and same-turn resumption; Chrome 152 cancellation caveat recorded.**
+Result: **Pass for the complete four-tool bridge and pending same-turn resumption; Chrome 152 cancellation caveat recorded.**
 
 ## Purpose
 
@@ -66,3 +66,18 @@ The Chrome WebMCP host contract was tested directly with `getTools()` and `execu
 ## Acceptance decision
 
 Phase 1 passes the first allowed acceptance outcome: a real Chrome WebMCP execution remained pending for more than two minutes, Done resolved that same execution, and the active Codex task continued. The cancellation mismatch is documented as a compatibility risk rather than treated as a false pass.
+
+## Phase 5 bridge verification
+
+The Chrome 152 test was repeated after replacing the single-tool probe with the production bridge.
+
+| Step | Result | Evidence |
+| --- | --- | --- |
+| Discover four tools | Pass | `getTools()` returned `wait_for_review`, `get_review_batch`, `get_correction`, and `acknowledge_review`. |
+| Existing ready batch | Pass | `wait_for_review` immediately returned a persisted four-correction batch after reload. |
+| Retrieve compact data | Pass | The host fetched the batch summary, then each correction separately by ID. |
+| Acknowledge without false application | Pass | The transport-only test recorded all four corrections as unresolved and finalized the batch as `partial`. |
+| Pending human flow | Pass | A second `wait_for_review` remained pending; the overlay showed “Agent waiting · connected.” Selecting real landing-page text and pressing Done resumed the same host execution with one correction. |
+| Retrieve and acknowledge pending batch | Pass | The resumed host fetched that correction and honestly acknowledged it as unresolved because no source edit was attempted. |
+
+Chrome serializes callback return objects as JSON strings at the `executeTool()` host boundary. The development probe now normalizes that documented host result before chaining retrieval calls. The browser again did not expose the callback execution signal during caller cancellation, so unload cleanup and duplicate-wait protection remain necessary.

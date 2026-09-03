@@ -21,6 +21,7 @@ import {
   type Rectangle,
 } from './geometry.ts'
 import { overlayStyles } from './styles.ts'
+import { reviewBridge, type BridgeStatus } from './reviewBridge.ts'
 
 type Mode = 'idle' | 'inspect' | 'text' | 'lasso'
 type Point = { x: number; y: number }
@@ -105,6 +106,7 @@ export function ReviewPlane() {
   const [version, setVersion] = useState(0)
   const [submitted, setSubmitted] = useState<Readonly<SubmittedReview> | null>(null)
   const [error, setError] = useState('')
+  const [bridgeStatus, setBridgeStatus] = useState<BridgeStatus>('unavailable')
   const [editing, setEditing] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
   const [replacement, setReplacement] = useState('')
@@ -155,6 +157,16 @@ export function ReviewPlane() {
     setPortal(root)
     return () => { host.remove(); document.getElementById('reviewplane-preview-styles')?.remove() }
   }, [])
+
+  useEffect(() => {
+    if (!store) return
+    reviewBridge.attach(store, Boolean(document.modelContext))
+    const unsubscribe = reviewBridge.subscribe((next) => {
+      setBridgeStatus(next)
+      if (next === 'acknowledged') setSubmitted(store.getLatestSubmitted())
+    })
+    return () => { unsubscribe(); reviewBridge.detach() }
+  }, [store])
 
   useEffect(() => {
     fetch('/__reviewplane/manifest.json', { cache: 'no-store' })
@@ -339,7 +351,7 @@ export function ReviewPlane() {
   const removeTarget = (occurrenceId: string) => setSelection((current) => current?.kind === 'group' ? { ...current, targets: current.targets.filter((target) => target.occurrenceId !== occurrenceId) } : current)
   const mutate = (action: () => void) => { try { action(); setError(''); refresh() } catch (caught) { setError(caught instanceof Error ? caught.message : 'Action failed.') } }
   const reset = () => mutate(() => { store?.resetDraft(); setSubmitted(null) })
-  const done = () => mutate(() => { const result = store!.submit(); setSubmitted(result); setMode('idle'); closePopup() })
+  const done = () => mutate(() => { const result = store!.submit(); reviewBridge.publish(result); setSubmitted(result); setMode('idle'); closePopup() })
   const newDraft = () => mutate(() => { store!.beginDraft({ route: route(), viewport: viewport() }); setSubmitted(null) })
 
   if (!portal || !store) return null
@@ -369,14 +381,14 @@ export function ReviewPlane() {
 
     {trayOpen && <aside className="rp-tray">
       <div className="rp-head"><div><p className="rp-kicker">Correction tray</p><h3>{active.length} pending</h3></div><button className="rp-link" onClick={() => setTrayOpen(false)}>Hide</button></div>
-      <p className="rp-meta rp-status">Local browser · ready</p>
+      <p className="rp-meta rp-status">{bridgeStatus === 'waiting' ? 'Agent waiting · connected' : bridgeStatus === 'batch-ready' ? 'Batch ready · saved' : bridgeStatus === 'acknowledged' ? 'Agent acknowledged batch' : bridgeStatus === 'ready' ? 'WebMCP · ready' : 'Local browser · no WebMCP host'}</p>
       {entries.length === 0 ? <p className="rp-empty">Select page text or lasso a region to stage your first correction.</p> : <div className="rp-corrections">{entries.map(({ correction, active: isActive }, index) => <div className="rp-correction" key={correction.id}>
         <div className="rp-correction-head"><code>{String(index + 1).padStart(2, '0')} · {correction.kind}<br/>{correction.sourceRecord.file}:{correction.sourceRecord.line}</code>{correction.staleTarget && <span className="rp-stale">stale target</span>}</div>
         <p className="rp-summary" style={{ opacity: isActive ? 1 : .5 }}>{isActive ? summary(correction) : `Undone · ${summary(correction)}`}</p>
         {editing === correction.id ? <div className="rp-edit"><input value={editValue} onChange={(event) => setEditValue(event.target.value)}/><button className="rp-link" onClick={() => mutate(() => { store.editCorrection(correction.id, { requestedValue: editValue }); setEditing(null) })}>Save</button></div> : isActive && <div className="rp-actions"><button className="rp-link" onClick={() => { setEditing(correction.id); setEditValue(correction.requestedValue) }}>Edit</button><button className="rp-link" onClick={() => mutate(() => store.undoCorrection(correction.id))}>Undo</button><button className="rp-link rp-danger" onClick={() => mutate(() => store.removeCorrection(correction.id))}>Remove</button></div>}
       </div>)}</div>}
       {error && !selection && <p className="rp-meta rp-stale">{error}</p>}
-      {submitted && <><p className="rp-meta">Batch is ready. No agent wake-up is implied; a waiting or later-connected agent can retrieve it.</p><pre className="rp-payload">{JSON.stringify(submitted, null, 2)}</pre></>}
+      {submitted && <><p className="rp-meta">Batch status: {submitted.batch.status}. No idle agent wake-up is implied; a waiting or later-connected agent can retrieve a ready batch.</p><pre className="rp-payload">{JSON.stringify(submitted, null, 2)}</pre></>}
       <div className="rp-actions">{submitted ? <button className="rp-primary" onClick={newDraft}>Start another review</button> : <><button className="rp-quiet" disabled={!entries.length} onClick={reset}>Reset all</button><button className="rp-primary" disabled={!active.length} onClick={done}>Done</button></>}</div>
     </aside>}
 

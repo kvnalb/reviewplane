@@ -312,6 +312,11 @@ export class ReviewStore {
     return submitted ? deepFreeze(clone(submitted)) : null
   }
 
+  getLatestSubmitted() {
+    const submitted = this.submitted.at(-1)
+    return submitted ? deepFreeze(clone(submitted)) : null
+  }
+
   private requireDraft() {
     if (!this.draft) throw new ReviewDomainError('No draft is active.')
     return this.draft

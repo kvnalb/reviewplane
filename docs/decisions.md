@@ -62,3 +62,12 @@
 - Limited direct replacement to a mapped element with one direct text node. Nested or cross-element text becomes an instruction-only group with an explicit no-preview message.
 - Browser acceptance uncovered two overlay hit-testing issues: Shadow DOM events need `composedPath()` checks, and a tall lasso popup could sit under the fixed toolbar. Popup input now suspends lasso capture, and popups/trays stack above the toolbar and avoid the tray's desktop column.
 - Kept Done honest: it freezes and displays a ready payload but states that no idle agent wake-up is implied. WebMCP delivery belongs to Phase 5.
+
+## Phase 5
+
+- Moved WebMCP behavior into a shared bridge owned by `@reviewplane/react`. The overlay publishes its immutable submitted snapshot; the four tools retrieve or acknowledge the same store-backed batch.
+- Split batch summary from correction detail to keep tool outputs compact. Human-authored outputs use `untrustedContentHint`; retrieval tools use `readOnlyHint`; correction text is clipped with an explicit truncation flag and group target lists are capped with a total count.
+- Restored the latest submitted batch from session storage so `wait_for_review` can return an existing ready batch immediately after reload.
+- Defined unresolved-only acknowledgement as `partial`, not `failed`. A batch becomes `failed` only when it has failures or a failure reason and no applied corrections.
+- Chrome 152 returned callback objects from `executeTool()` as JSON strings. The development host test now parses that boundary before chaining `get_review_batch`, `get_correction`, and `acknowledge_review`.
+- Reconfirmed Chrome's Phase 1 cancellation caveat: caller cancellation still does not provide the callback execution signal. Duplicate-wait protection, registration abort, and page-unload cleanup remain; this browser limitation is not presented as successful callback cancellation.
