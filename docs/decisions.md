@@ -34,3 +34,13 @@
 - A Chrome execution remained pending for 138 seconds, resolved from Done, and returned to the same active Codex task. No host timeout occurred, so the primary Phase 1 acceptance path passed.
 - Chrome 152 cancelled the `executeTool()` caller-facing promise but did not supply the documented execution `AbortSignal` to the registered callback. Kept single-waiter state plus unload cleanup, and deferred another cancellation check to the submission-browser end-to-end test.
 - Changed simultaneous-waiter handling from throwing an exception to returning a structured `review_already_pending` result because Chrome masks callback exceptions behind a generic invocation error.
+
+## Phase 2
+
+- Implemented `@reviewplane/vite` as an `apply: 'serve'`, `enforce: 'pre'` Vite plugin so JSX is instrumented before React compilation and the plugin is absent from ordinary production builds.
+- Used Babel's parser, traversal, node builders, and generator rather than string replacement. This preserves JSX/TSX syntax such as fragments, conditional rendering, CSS Module expressions, and Tailwind class strings.
+- Derived each 10-character source ID from the normalized repository-relative path, one-based source location, intrinsic tag, and nearest enclosing component. The 16-character fingerprint separately hashes nearby normalized source plus attribute names so an agent can recover when edits shift line numbers.
+- Added a small development runtime that gives every rendered DOM occurrence a distinct `data-rp-occurrence-id`. Instances produced by one `.map()` location share the source ID but receive monotonically distinct occurrence IDs.
+- Excluded dependencies, build output, generated files, files outside the Vite root, and user-configured path patterns. The landing app explicitly excludes the Phase 1 probe because ReviewPlane must not instrument its own control surface.
+- Added a no-cache development manifest endpoint with a revision counter. A real Vite hot update advanced the manifest revision from 2 to 4 while preserving the hero's correct `src/App.tsx:147:13`, `h1`, `App` mapping.
+- Moved the WebMCP probe behind a development-only lazy import and its own stylesheet. The production bundle contains no ReviewPlane source attributes, occurrence runtime, manifest route, probe UI, or WebMCP registration strings.

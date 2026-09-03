@@ -1,0 +1,22 @@
+.webmcp-probe { display: grid; grid-template-columns: .78fr 1.22fr; gap: 72px; align-items: start; }
+.webmcp-probe > div:first-child > p:last-child { max-width: 560px; color: var(--rp-muted); }
+.probe-console { padding: 22px; background: var(--rp-tool); color: var(--rp-tool-text); border: 1px solid #3b4742; box-shadow: var(--rp-shadow-lg); }
+.probe-status { min-height: 42px; padding-bottom: 14px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; border-bottom: 1px solid #3b4742; font: .62rem var(--rp-mono); }
+.probe-status > span:last-child { color: #a6b1ac; }
+.status-dot { width: 9px; height: 9px; background: #aab4af; }
+.status-registered, .status-resolved { background: #7fc68f; }
+.status-pending { background: #f2c25c; }
+.status-unavailable, .status-error, .status-cancelled { background: #e4665c; }
+.probe-console > p { margin: 17px 0; color: #d5deda; font-size: .78rem; }
+.probe-console dl { margin: 0 0 20px; border-top: 1px solid #3b4742; }
+.probe-console dl > div { padding: 9px 0; display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 12px; border-bottom: 1px solid #3b4742; font: .55rem/1.5 var(--rp-mono); }
+.probe-console dt { color: #9ba8a2; }
+.probe-console dd { margin: 0; overflow-wrap: anywhere; }
+.probe-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.probe-actions .button-secondary { border-color: #8c9a93; background: transparent; color: var(--rp-tool-text); }
+.probe-host-detail { padding-top: 14px; border-top: 1px solid #3b4742; overflow-wrap: anywhere; }
+.probe-console .button:disabled { border-color: #53605a; background: #3a4540; color: #8d9993; box-shadow: none; }
+
+@media (max-width: 1050px) {
+  .webmcp-probe { grid-template-columns: 1fr; }
+}

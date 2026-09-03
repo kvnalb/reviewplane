@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useRef, useState, type ReactNode } from 'react'
 import '@fontsource/familjen-grotesk/latin-500.css'
 import '@fontsource/familjen-grotesk/latin-600.css'
 import '@fontsource/ibm-plex-sans/latin-400.css'
@@ -7,7 +7,8 @@ import '@fontsource/ibm-plex-sans/latin-600.css'
 import '@fontsource/ibm-plex-mono/latin-400.css'
 import '@fontsource/ibm-plex-mono/latin-500.css'
 import './App.css'
-import { WebMcpProbe } from './WebMcpProbe'
+
+const WebMcpProbe = import.meta.env.DEV ? lazy(() => import('./WebMcpProbe')) : null
 
 type IconName =
   | 'arrow'
@@ -304,7 +305,7 @@ function App() {
           </div>
         </section>
 
-        <WebMcpProbe />
+        {WebMcpProbe && <Suspense fallback={null}><WebMcpProbe /></Suspense>}
 
         <section className="closing-section ruled-section">
           <div><p className="eyebrow">Make the next edit visible</p><h2>Turn “something feels off” into a correction your agent can act on.</h2></div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import './WebMcpProbe.css'
 
 type RegisteredTool = { name: string; title?: string; description: string }
 type ToolExecutionOptions = { signal?: AbortSignal } | AbortSignal | undefined
@@ -191,3 +192,5 @@ export function WebMcpProbe() {
     </section>
   )
 }
+
+export default WebMcpProbe
