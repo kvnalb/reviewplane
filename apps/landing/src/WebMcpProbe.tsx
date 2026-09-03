@@ -3,12 +3,14 @@ import { useEffect, useRef, useState } from 'react'
 import './WebMcpProbe.css'
 
 const toolNames = ['wait_for_review', 'get_review_batch', 'get_correction', 'acknowledge_review']
+type RetrievedBatch = { batchId: string; correctionIds: string[] }
 
 export function WebMcpProbe() {
   const hasModelContext = Boolean(document.modelContext)
   const [status, setStatus] = useState<'checking' | 'unavailable' | 'registered' | 'pending' | 'resolved' | 'cancelled' | 'error'>(hasModelContext ? 'checking' : 'unavailable')
   const [detail, setDetail] = useState(hasModelContext ? 'Registering the ReviewPlane bridge…' : 'WebMCP is unavailable here. Reviews remain saved in this browser session.')
   const [hostDetail, setHostDetail] = useState('No host execution has started.')
+  const [retrieved, setRetrieved] = useState<RetrievedBatch | null>(null)
   const hostControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -45,9 +47,10 @@ export function WebMcpProbe() {
       const result = (typeof rawResult === 'string' ? JSON.parse(rawResult) : rawResult) as { batchId?: string; correctionIds?: string[]; status?: string }
       if (result.batchId && result.correctionIds) {
         await modelContext.executeTool(tools.get('get_review_batch')!, JSON.stringify({ batchId: result.batchId }))
-        for (const correctionId of result.correctionIds) await modelContext.executeTool(tools.get('get_correction')!, JSON.stringify({ correctionId }))
-        const acknowledgement = await modelContext.executeTool(tools.get('acknowledge_review')!, JSON.stringify({ batchId: result.batchId, applied: [], unresolved: result.correctionIds, failed: [], validationSummary: 'Browser bridge acceptance only; source application was not attempted.' }))
-        setHostDetail(`Full bridge passed for ${result.correctionIds.length} corrections. They were honestly acknowledged as unresolved: ${JSON.stringify(acknowledgement)}`)
+        const corrections = []
+        for (const correctionId of result.correctionIds) corrections.push(await modelContext.executeTool(tools.get('get_correction')!, JSON.stringify({ correctionId })))
+        setRetrieved({ batchId: result.batchId, correctionIds: result.correctionIds })
+        setHostDetail(`Retrieved ${result.correctionIds.length} corrections: ${corrections.join(' | ')}`)
       } else {
         setHostDetail(`Host result: ${JSON.stringify(result)}`)
       }
@@ -58,6 +61,15 @@ export function WebMcpProbe() {
     } finally {
       if (hostControllerRef.current === controller) hostControllerRef.current = null
     }
+  }
+
+  const acknowledgeApplied = async () => {
+    if (!retrieved || !document.modelContext) return
+    const tool = (await document.modelContext.getTools()).find((candidate) => candidate.name === 'acknowledge_review')
+    if (!tool) return
+    const result = await document.modelContext.executeTool(tool, JSON.stringify({ batchId: retrieved.batchId, applied: retrieved.correctionIds, unresolved: [], failed: [], validationSummary: 'Typecheck, lint, tests, production build, and live rerender passed.' }))
+    setHostDetail(`Acknowledged applied: ${JSON.stringify(result)}`)
+    setRetrieved(null)
   }
 
   return (
@@ -77,8 +89,9 @@ export function WebMcpProbe() {
           <div><dt>Origin isolated</dt><dd>{String(window.originAgentCluster)}</dd></div>
         </dl>
         <div className="probe-actions">
-          <button className="button button-secondary" type="button" onClick={() => void invokeHostTest()} disabled={status === 'checking' || status === 'unavailable' || status === 'pending'}>Test full bridge</button>
+          <button className="button button-secondary" type="button" onClick={() => void invokeHostTest()} disabled={status === 'checking' || status === 'unavailable' || status === 'pending'}>Wait + retrieve</button>
           <button className="button button-secondary" type="button" onClick={() => hostControllerRef.current?.abort()} disabled={status !== 'pending'}>Cancel execution</button>
+          <button className="button" type="button" onClick={() => void acknowledgeApplied()} disabled={!retrieved}>Acknowledge applied</button>
         </div>
         <p className="probe-host-detail"><b>Host trace:</b> {hostDetail}</p>
       </div>

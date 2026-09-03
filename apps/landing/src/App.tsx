@@ -200,7 +200,7 @@ function App() {
         <section className="sandbox-section ruled-section" aria-labelledby="sandbox-title">
           <div className="section-intro">
             <p className="eyebrow">Live on this page</p>
-            <h2 id="sandbox-title">Don’t study a simulation. Review the page you’re reading.</h2>
+            <h2 id="sandbox-title">Edit the page, simulation. Review the page you’re reading.</h2>
             <p>ReviewPlane is dogfooding itself here. Open the overlay, select this headline or any other copy, and watch your proposed change preview in place.</p>
           </div>
           <div className="live-review-card">

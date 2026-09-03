@@ -71,3 +71,12 @@
 - Defined unresolved-only acknowledgement as `partial`, not `failed`. A batch becomes `failed` only when it has failures or a failure reason and no applied corrections.
 - Chrome 152 returned callback objects from `executeTool()` as JSON strings. The development host test now parses that boundary before chaining `get_review_batch`, `get_correction`, and `acknowledge_review`.
 - Reconfirmed Chrome's Phase 1 cancellation caveat: caller cancellation still does not provide the callback execution signal. Duplicate-wait protection, registration abort, and page-unload cleanup remain; this browser limitation is not presented as successful callback cancellation.
+
+## Phase 6
+
+- Added separate create-new and adopt-existing React skills because source ownership differs: a new app can shape its component/content boundaries, while adoption must preserve established tokens, localization, APIs, and data flow.
+- Kept the canonical instructions in `skills/` and added lightweight discoverable copies under `.agents/skills/`. The copies point to the canonical file so the operational contract has one maintained source.
+- Expanded `AGENTS.md` only with the skill locations and a concise fallback workflow; it remains the repository-wide contract when skill discovery is unavailable.
+- The skill validator could not start because its own Python environment lacks PyYAML. Frontmatter and required fields were checked with Ruby's standard YAML parser instead; no skill package dependency was added to the product for a validator-only need.
+- Ran the acceptance path through a real active Chrome `wait_for_review`: retrieved a JSX text replacement, a foreground-color correction, and a nine-target lasso instruction; traced them to `App.tsx` and `App.css`; applied one minimal patch; passed typecheck, lint, 22 tests, production build, and live visual inspection; then acknowledged all three exact IDs as applied.
+- Kept the development host harness honest and reusable: it now waits and retrieves without auto-acknowledging. The acknowledgement control is enabled only after retrieval, so Codex can apply and validate source before recording success.

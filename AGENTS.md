@@ -9,6 +9,15 @@
 - Keep ReviewPlane development-only in consumer applications unless an explicit hosted sandbox mode is enabled.
 - Never imply that WebMCP can wake an idle coding agent; verify browser-agent behavior in the real target environment.
 
+## Review batches
+
+For a ReviewPlane-driven source change, use the appropriate canonical repository skill:
+
+- New React + Vite work: `skills/reviewplane-create-react/SKILL.md`
+- Existing React + Vite app: `skills/reviewplane-adopt-react/SKILL.md`
+
+If skills are not discoverable, retrieve every correction, inspect the canonical source, apply one minimal patch, validate, and acknowledge applied, unresolved, and failed correction IDs separately.
+
 ## Repository commands
 
 ```bash
