@@ -53,3 +53,12 @@
 - Persisted versioned draft and submitted state through a small `StorageLike` interface. Browser consumers can use `sessionStorage`; restricted storage failures do not crash the review surface.
 - Submission deep-freezes the ready batch and its correction snapshot. Later acknowledgement creates a new frozen batch state rather than mutating the payload that an agent already received.
 - Limited batch transitions to `ready -> applying -> applied | partial | failed`. Empty submission, duplicate drafts, invalid text offsets, missing targets, edits to undone corrections, and illegal transitions return explicit domain errors.
+
+## Phase 4
+
+- Replaced the baseline's simulated pricing-card playground with a live launcher because the strongest product proof is ReviewPlane reviewing its own landing page. The generated baseline remains preserved by the Phase 0C tag.
+- Mounted the overlay through a React portal into a Shadow DOM host. Fixed-position controls and highlights do not alter consumer layout, and the landing app loads the package only behind `import.meta.env.DEV`.
+- Chose `Alt+Shift+R` for inspect-mode toggling and a 25% target-area intersection threshold for lasso inclusion. Invisible targets and redundant mapped containers are excluded.
+- Limited direct replacement to a mapped element with one direct text node. Nested or cross-element text becomes an instruction-only group with an explicit no-preview message.
+- Browser acceptance uncovered two overlay hit-testing issues: Shadow DOM events need `composedPath()` checks, and a tall lasso popup could sit under the fixed toolbar. Popup input now suspends lasso capture, and popups/trays stack above the toolbar and avoid the tray's desktop column.
+- Kept Done honest: it freezes and displays a ready payload but states that no idle agent wake-up is implied. WebMCP delivery belongs to Phase 5.

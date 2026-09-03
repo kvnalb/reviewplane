@@ -9,6 +9,7 @@ import '@fontsource/ibm-plex-mono/latin-500.css'
 import './App.css'
 
 const WebMcpProbe = import.meta.env.DEV ? lazy(() => import('./WebMcpProbe')) : null
+const ReviewPlane = import.meta.env.DEV ? lazy(() => import('@reviewplane/react').then(({ ReviewPlane }) => ({ default: ReviewPlane }))) : null
 
 type IconName =
   | 'arrow'
@@ -80,10 +81,8 @@ const correctionDetail = `{
 function App() {
   const [navOpen, setNavOpen] = useState(false)
   const [payloadOpen, setPayloadOpen] = useState(false)
-  const [previewTool, setPreviewTool] = useState<'Select' | 'Text' | 'Region'>('Select')
   const [copied, setCopied] = useState('')
   const [announcement, setAnnouncement] = useState('')
-  const sandboxRef = useRef<HTMLElement>(null)
   const handoffRef = useRef<HTMLElement>(null)
 
   const closeAndScroll = (id: string) => {
@@ -92,8 +91,8 @@ function App() {
   }
 
   const openPreview = () => {
-    sandboxRef.current?.scrollIntoView({ behavior: 'smooth' })
-    setAnnouncement('Preview opened. The working ReviewPlane overlay arrives in Phase 4.')
+    window.dispatchEvent(new Event('reviewplane:activate'))
+    setAnnouncement('ReviewPlane opened. Select text on this page, or choose Lasso in the bottom toolbar.')
   }
 
   const inspectBatch = () => {
@@ -198,25 +197,20 @@ function App() {
           </div>
         </section>
 
-        <section className="sandbox-section ruled-section" ref={sandboxRef} aria-labelledby="sandbox-title">
+        <section className="sandbox-section ruled-section" aria-labelledby="sandbox-title">
           <div className="section-intro">
-            <p className="eyebrow">Try the interaction model</p>
-            <h2 id="sandbox-title">Point at the page, not the file tree.</h2>
-            <p>This baseline previews the controls and visual language. It does not stage a correction or change source code yet.</p>
+            <p className="eyebrow">Live on this page</p>
+            <h2 id="sandbox-title">Don’t study a simulation. Review the page you’re reading.</h2>
+            <p>ReviewPlane is dogfooding itself here. Open the overlay, select this headline or any other copy, and watch your proposed change preview in place.</p>
           </div>
-          <div className="sandbox-board">
-            <div className="sandbox-toolbar" aria-label="Preview controls">
-              <button type="button" aria-pressed={previewTool === 'Select'} onClick={() => setPreviewTool('Select')}><Icon name="cursor" /> Select</button>
-              <button type="button" aria-pressed={previewTool === 'Text'} onClick={() => setPreviewTool('Text')}><Icon name="text" /> Text</button>
-              <button type="button" aria-pressed={previewTool === 'Region'} onClick={() => setPreviewTool('Region')}><Icon name="rectangle" /> Region</button>
-              <span>Preview only</span>
-            </div>
-            <div className="sandbox-canvas">
-              <article><span className="sample-label">{previewTool.toUpperCase()} PREVIEW</span><p>Production</p><strong>$49</strong><small>per editor / month</small><span className="sample-cta">Start building</span></article>
-              <div className="measurement width">288 px</div>
-              <div className="measurement gap">24 px</div>
-              <div className="cursor-note"><Icon name="cursor" /> padding: 32px</div>
-            </div>
+          <div className="live-review-card">
+            <ol>
+              <li><span>01</span><div><b>Select real copy</b><p>Drag across text anywhere on this landing page.</p></div></li>
+              <li><span>02</span><div><b>Preview the correction</b><p>Replace it or change its visible color and size.</p></div></li>
+              <li><span>03</span><div><b>Try a region</b><p>Choose Lasso, draw around several elements, and leave one instruction.</p></div></li>
+            </ol>
+            <button className="button" type="button" onClick={openPreview}>Review this page now <Icon name="arrow" /></button>
+            <p className="live-shortcut">Keyboard: <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd></p>
           </div>
         </section>
 
@@ -306,6 +300,7 @@ function App() {
         </section>
 
         {WebMcpProbe && <Suspense fallback={null}><WebMcpProbe /></Suspense>}
+        {ReviewPlane && <Suspense fallback={null}><ReviewPlane /></Suspense>}
 
         <section className="closing-section ruled-section">
           <div><p className="eyebrow">Make the next edit visible</p><h2>Turn “something feels off” into a correction your agent can act on.</h2></div>

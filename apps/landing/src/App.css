@@ -84,6 +84,15 @@
 .context-receipt p { margin: 0; padding: 16px 18px; color: var(--rp-red); font: 500 .66rem var(--rp-mono); }
 
 .sandbox-section { display: grid; grid-template-columns: .7fr 1.3fr; gap: 70px; align-items: center; }
+.live-review-card { padding: 28px; border: 1px solid var(--rp-rule-dark); background: white; box-shadow: var(--rp-shadow-lg); }
+.live-review-card ol { margin: 0 0 24px; padding: 0; list-style: none; border-top: 1px solid var(--rp-rule); }
+.live-review-card li { min-height: 82px; padding: 15px 0; display: grid; grid-template-columns: 45px 1fr; gap: 12px; align-items: start; border-bottom: 1px solid var(--rp-rule); }
+.live-review-card li > span { color: var(--rp-blue); font: 500 .65rem var(--rp-mono); }
+.live-review-card li b { font: 600 .84rem var(--rp-display); }
+.live-review-card li p { margin: 5px 0 0; color: var(--rp-muted); font-size: .75rem; }
+.live-review-card .button { width: 100%; }
+.live-shortcut { margin: 13px 0 0; color: var(--rp-muted); font: .58rem var(--rp-mono); text-align: center; }
+.live-shortcut kbd { padding: 2px 5px; border: 1px solid var(--rp-rule-dark); background: var(--rp-paper); font: inherit; }
 .sandbox-board { border: 1px solid var(--rp-rule-dark); background: white; box-shadow: var(--rp-shadow-lg); }
 .sandbox-toolbar { min-height: 54px; padding: 7px; display: flex; gap: 5px; align-items: center; border-bottom: 1px solid var(--rp-rule); background: #f2f5f3; }
 .sandbox-toolbar button { min-height: 38px; padding: 0 11px; display: flex; align-items: center; gap: 6px; border: 1px solid transparent; background: transparent; color: var(--rp-muted); font: 500 .61rem var(--rp-mono); }
