@@ -44,3 +44,12 @@
 - Excluded dependencies, build output, generated files, files outside the Vite root, and user-configured path patterns. The landing app explicitly excludes the Phase 1 probe because ReviewPlane must not instrument its own control surface.
 - Added a no-cache development manifest endpoint with a revision counter. A real Vite hot update advanced the manifest revision from 2 to 4 while preserving the hero's correct `src/App.tsx:147:13`, `h1`, `App` mapping.
 - Moved the WebMCP probe behind a development-only lazy import and its own stylesheet. The production bundle contains no ReviewPlane source attributes, occurrence runtime, manifest route, probe UI, or WebMCP registration strings.
+
+## Phase 3
+
+- Defined the correction domain in `@reviewplane/core` with discriminated unions for text, foreground color, background color, font size, and group instructions. Every correction carries source/runtime identity, route and viewport context, original/requested values, styles, ancestries, preview state, and stale-target state.
+- Stored draft entries as correction data plus an active flag. Undo deactivates the latest or any named middle entry; preview values are regenerated from the captured baseline, so undo never depends on a fragile chain of inverse DOM mutations.
+- Applied multiple text replacements from the end of the baseline string toward the beginning so earlier offsets remain valid. A replacement is skipped for a matching occurrence when its selected substring does not match that occurrence's baseline text.
+- Persisted versioned draft and submitted state through a small `StorageLike` interface. Browser consumers can use `sessionStorage`; restricted storage failures do not crash the review surface.
+- Submission deep-freezes the ready batch and its correction snapshot. Later acknowledgement creates a new frozen batch state rather than mutating the payload that an agent already received.
+- Limited batch transitions to `ready -> applying -> applied | partial | failed`. Empty submission, duplicate drafts, invalid text offsets, missing targets, edits to undone corrections, and illegal transitions return explicit domain errors.

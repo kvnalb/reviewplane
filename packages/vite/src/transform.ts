@@ -4,17 +4,10 @@ import generate from '@babel/generator'
 import { parse } from '@babel/parser'
 import traverse, { type NodePath } from '@babel/traverse'
 import * as t from '@babel/types'
+import type { SourceRecord } from '@reviewplane/core'
 import { normalizePath } from 'vite'
 
-export type SourceRecord = {
-  id: string
-  file: string
-  line: number
-  column: number
-  tag: string
-  component?: string
-  fingerprint: string
-}
+export type { SourceRecord } from '@reviewplane/core'
 
 export type Exclusion = string | RegExp
 
