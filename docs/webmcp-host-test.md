@@ -1,11 +1,11 @@
 # WebMCP host test
 
 Date: 2026-09-03  
-Result: **Blocked — the target browser does not expose `document.modelContext`.**
+Result: **Pass for pending wait and same-turn resumption; Chrome 152 cancellation caveat recorded.**
 
 ## Purpose
 
-This test asks whether ReviewPlane can register `wait_for_review`, let a coding-agent tool call remain pending while a human reviews the page, and resume that same call when the human presses Done.
+This test asks whether ReviewPlane can register `wait_for_review`, let a WebMCP execution remain pending while a human reviews the page, and resume that same execution when the human presses Done.
 
 ## Probe implementation
 
@@ -13,58 +13,56 @@ The development-only probe is implemented in `apps/landing/src/WebMcpProbe.tsx`.
 
 - It feature-detects `document.modelContext`.
 - When available, it registers `wait_for_review` with `document.modelContext.registerTool(...)`.
-- The `execute` callback returns a Promise and retains one resolver.
+- Its `execute` callback returns a Promise and retains one resolver.
 - Done resolves that Promise with a structured `review_complete` result.
-- The callback listens to its execution `AbortSignal` and rejects on cancellation.
-- A second simultaneous call is rejected with a clear `another review is already pending` error.
+- It listens for the execution `AbortSignal` when the browser supplies one.
+- A second simultaneous call returns a clear `review_already_pending` response.
 - The registration is removed through a registration `AbortSignal` when the component unmounts.
+- A small development-only host-test client uses the documented `getTools()` and `executeTool()` methods. This tests the Chrome WebMCP lifecycle deterministically; it is not presented as evidence that a language model will always choose the tool.
 - When the API is absent, the probe displays exactly: “WebMCP is unavailable in this browser.” It does not register a substitute or simulate success.
 
 ## Reference behavior
 
-The [WebMCP draft specification](https://webmachinelearning.github.io/webmcp/) defines an asynchronous imperative tool callback, permits it to return a Promise, and supplies an execution `AbortSignal`. It also defines cleanup for pending executions when documents unload.
-
-Chrome's [WebMCP overview](https://developer.chrome.com/docs/ai/webmcp) says local development currently requires `chrome://flags/#enable-webmcp-testing`, that the API requires an origin-isolated document, and that an agent must visit a page before discovering its tools. Chrome's [security guidance](https://developer.chrome.com/docs/ai/webmcp/secure-tools) recommends exposing tools narrowly and applying accurate annotations.
+The [WebMCP draft specification](https://webmachinelearning.github.io/webmcp/) defines an asynchronous imperative tool callback and permits it to return a Promise. Chrome's [imperative API documentation](https://developer.chrome.com/docs/ai/webmcp/imperative-api) documents `getTools()`, `executeTool()`, cancellation through an execution `AbortSignal`, and registration cleanup. Chrome's [WebMCP overview](https://developer.chrome.com/docs/ai/webmcp) documents the local-development flag, while its [security guidance](https://developer.chrome.com/docs/ai/webmcp/secure-tools) recommends narrow exposure and accurate annotations.
 
 ## Environment
 
 | Field | Observed value |
 | --- | --- |
-| Coding-agent host | Codex desktop task |
-| Browser surface | Codex in-app browser |
-| Browser user agent | Chrome 151.0.0.0 on macOS |
+| Coding-agent host | Codex desktop task controlling the user's Chrome tab |
+| Browser surface | Chrome extension connection |
+| Browser user agent | Chrome 152.0.0.0 on macOS |
 | Page host | `localhost:5173` |
 | Secure context | `true` |
 | Origin-agent cluster | `true` |
-| `document.modelContext` | Absent (`undefined`) |
-| Local WebMCP flag | Not exposed through this in-app browser surface; effective state is unavailable |
+| `document.modelContext` | Present |
+| Local WebMCP flag | Enabled by the user; Chrome relaunched |
+
+An earlier attempt in the Codex in-app browser used Chrome 151 and found `document.modelContext` absent. The Chrome result supersedes that blocked test for local development; it does not prove that every in-app browser rollout exposes page tools.
 
 ## Required test results
 
 | Step | Result | Evidence |
 | --- | --- | --- |
 | 1. Open the page | Pass | The landing application rendered at `http://localhost:5173/`. |
-| 2. Discover `wait_for_review` | **Blocked** | `"modelContext" in document` returned `false`; the page showed the required unavailable message. |
-| 3. Invoke the tool | Not runnable | No WebMCP API or discoverable tool exists in this host. |
-| 4. Keep it pending for two minutes | Not runnable | Invocation could not begin. |
-| 5–6. Press Done and resume the same turn | Not runnable | Done correctly remains disabled when no execution is pending. |
-| 7–8. Invoke again, cancel, and observe abort | Not runnable | Invocation could not begin. |
-| 9–10. Reload during a pending execution | Not runnable | No pending execution can be created. |
-| 11. Attempt a simultaneous waiter | Not runnable in host | The implemented callback rejects it, but host behavior cannot be claimed until the host invokes the tool. |
+| 2. Discover `wait_for_review` | Pass | The page reported `registered`, and Chrome's `document.modelContext.getTools()` returned `wait_for_review`. |
+| 3. Invoke the tool | Pass | The development host client called Chrome's documented `executeTool()` method. The tool entered `pending`. |
+| 4. Keep it pending for two minutes | Pass | The execution remained pending for 138 seconds without a host timeout. |
+| 5–6. Press Done and resume the same turn | Pass | Done resolved the same execution with `status: review_complete` and `waitedMs: 137739`; this Codex task continued after the result. |
+| 7–8. Invoke again, cancel, and observe abort | Partial | Aborting the `executeTool()` caller rejected that caller with `Cancelled by the Phase 1 host test`, but Chrome 152 did not supply the documented execution `AbortSignal` to the registered callback. The callback remained pending until Done. |
+| 9–10. Reload during a pending execution | Pass with host limitation | Reload discarded the pending document. The replacement document registered a fresh tool and returned to `registered`. Because the deterministic caller lived in the unloaded document, it could not display the old promise's terminal result. |
+| 11–12. Attempt a simultaneous waiter | Pass | A second execution returned `status: rejected`, `code: review_already_pending`, and an instruction to finish or cancel the active review. The first execution remained pending and later resolved normally. |
 
 ## Timeout and cancellation
 
-No host timeout or cancellation behavior can be measured because the target host cannot discover or invoke a page tool. The implementation follows the specification's Promise and `AbortSignal` mechanisms, but that is not evidence that this coding-agent host will preserve a pending turn.
+No timeout was observed over 138 seconds, so ReviewPlane does not need repeated bounded waits for this Chrome version.
+
+Cancellation is not yet portable enough to depend on as the only cleanup mechanism. In this Chrome 152 test, the caller's `AbortController` cancelled the caller-facing promise but the registered callback received no execution signal. ReviewPlane therefore keeps explicit single-waiter state and page-unload cleanup. Phase 5 must preserve those safeguards and repeat cancellation testing in the submission browser.
+
+## Agent-selection boundary
+
+The Chrome WebMCP host contract was tested directly with `getTools()` and `executeTool()`. The Codex Chrome-control surface used in this task does not expose page-registered tools as native task tool calls, so natural-language model selection was not separately measured here. That probabilistic selection check remains part of the Phase 5 and final end-to-end verification. No source-editing handoff was simulated.
 
 ## Acceptance decision
 
-Phase 1 does **not** pass either allowed acceptance outcome:
-
-1. No pending execution could be resolved after Done.
-2. No host timeout or bounded repeated-wait behavior could be measured.
-
-Per the build plan, work must stop before Phase 2. The source-editing handoff must not be simulated.
-
-## Unblocking action
-
-Run this same page in the actual browser-agent host with WebMCP enabled, then repeat all eleven steps. For Chrome local development, enable `chrome://flags/#enable-webmcp-testing` and relaunch Chrome. If the intended coding-agent host is the Codex in-app browser, that host must expose page tools before the test can pass.
+Phase 1 passes the first allowed acceptance outcome: a real Chrome WebMCP execution remained pending for more than two minutes, Done resolved that same execution, and the active Codex task continued. The cancellation mismatch is documented as a compatibility risk rather than treated as a false pass.

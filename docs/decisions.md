@@ -29,5 +29,8 @@
 ## Phase 1
 
 - Implemented `wait_for_review` as a real, development-only WebMCP probe with a retained Promise resolver, execution cancellation handling, reload cleanup, and single-waiter enforcement.
-- Tested the probe in the target Codex in-app browser at `localhost:5173`. The page was a secure, origin-isolated context running Chrome 151.0.0.0, but `document.modelContext` was absent.
-- Stopped before Phase 2 because the target host could not discover a page tool. Pending duration, same-turn resumption, cancellation, reload, and simultaneous-host-call behavior remain unverified and are not simulated.
+- The first Codex in-app-browser test was blocked because its Chrome 151 surface did not expose `document.modelContext`. After the user enabled Chrome's WebMCP testing flag, the test moved to the user's Chrome 152 tab, where the API was present.
+- Added a development-only deterministic host client around Chrome's documented `getTools()` and `executeTool()` APIs. It keeps model tool-choice evaluation separate from lifecycle verification and does not claim that every agent will select the tool.
+- A Chrome execution remained pending for 138 seconds, resolved from Done, and returned to the same active Codex task. No host timeout occurred, so the primary Phase 1 acceptance path passed.
+- Chrome 152 cancelled the `executeTool()` caller-facing promise but did not supply the documented execution `AbortSignal` to the registered callback. Kept single-waiter state plus unload cleanup, and deferred another cancellation check to the submission-browser end-to-end test.
+- Changed simultaneous-waiter handling from throwing an exception to returning a structured `review_already_pending` result because Chrome masks callback exceptions behind a generic invocation error.

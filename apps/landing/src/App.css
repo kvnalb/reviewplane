@@ -193,6 +193,9 @@ tbody td { color: var(--rp-muted); }
 .probe-console dl > div { padding: 9px 0; display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 12px; border-bottom: 1px solid #3b4742; font: .55rem/1.5 var(--rp-mono); }
 .probe-console dt { color: #9ba8a2; }
 .probe-console dd { margin: 0; overflow-wrap: anywhere; }
+.probe-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.probe-actions .button-secondary { border-color: #8c9a93; background: transparent; color: var(--rp-tool-text); }
+.probe-host-detail { padding-top: 14px; border-top: 1px solid #3b4742; overflow-wrap: anywhere; }
 .probe-console .button:disabled { border-color: #53605a; background: #3a4540; color: #8d9993; box-shadow: none; }
 
 .closing-section { padding-block: 90px; display: flex; align-items: end; justify-content: space-between; gap: 50px; }

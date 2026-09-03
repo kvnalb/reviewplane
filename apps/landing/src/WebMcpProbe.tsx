@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 type RegisteredTool = { name: string; title?: string; description: string }
-type ToolExecutionOptions = { signal: AbortSignal }
+type ToolExecutionOptions = { signal?: AbortSignal } | AbortSignal | undefined
 
 type ModelContext = {
   registerTool: (tool: {
@@ -13,7 +13,7 @@ type ModelContext = {
     execute: (input: object, options: ToolExecutionOptions) => Promise<unknown>
   }, options?: { signal?: AbortSignal }) => Promise<void>
   getTools: () => Promise<RegisteredTool[]>
-  executeTool: (tool: RegisteredTool, input?: object, options?: { signal?: AbortSignal }) => Promise<string>
+  executeTool: (tool: RegisteredTool, input: string, options?: { signal?: AbortSignal }) => Promise<unknown>
 }
 
 declare global {
@@ -30,8 +30,11 @@ export function WebMcpProbe() {
   const hasModelContext = Boolean(document.modelContext)
   const [status, setStatus] = useState<'checking' | 'unavailable' | 'registered' | 'pending' | 'resolved' | 'cancelled' | 'error'>(hasModelContext ? 'checking' : 'unavailable')
   const [detail, setDetail] = useState(hasModelContext ? 'Checking this browser for document.modelContext…' : 'WebMCP is unavailable in this browser.')
+  const [hostDetail, setHostDetail] = useState('No host execution has started.')
+  const [hostExecutionActive, setHostExecutionActive] = useState(false)
   const [elapsed, setElapsed] = useState(0)
   const pendingRef = useRef<PendingWaiter | null>(null)
+  const hostControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     if (!import.meta.env.DEV) return
@@ -57,19 +60,27 @@ export function WebMcpProbe() {
         additionalProperties: false,
       },
       annotations: { readOnlyHint: false, untrustedContentHint: false, consequentialHint: false },
-      execute: async (input, { signal }) => {
+      execute: async (input, execution) => {
         if (pendingRef.current) {
-          throw new Error('wait_for_review rejected: another review is already pending. Finish or cancel the active review before starting a second waiter.')
+          return {
+            status: 'rejected',
+            code: 'review_already_pending',
+            message: 'Another review is already pending. Finish or cancel the active review before starting a second waiter.',
+          }
         }
+
+        const signal = execution instanceof AbortSignal ? execution : execution?.signal
 
         setStatus('pending')
         setElapsed(0)
-        setDetail('An agent is waiting. Inspect the page, then press Done.')
+        setDetail(signal
+          ? 'A Chrome host execution is waiting. Inspect the page, then press Done.'
+          : 'A Chrome host execution is waiting, but this browser did not supply its execution AbortSignal.')
 
         return new Promise((resolve, reject) => {
           const waiter: PendingWaiter = { resolve, reject, startedAt: Date.now() }
           pendingRef.current = waiter
-          signal.addEventListener('abort', () => {
+          signal?.addEventListener('abort', () => {
             if (pendingRef.current !== waiter) return
             pendingRef.current = null
             setStatus('cancelled')
@@ -120,6 +131,40 @@ export function WebMcpProbe() {
     setDetail(`Done resolved the same execution after ${Math.round(waitedMs / 1000)} seconds.`)
   }
 
+  const invokeHostTest = async () => {
+    const modelContext = document.modelContext
+    if (!modelContext) return
+
+    const tool = (await modelContext.getTools()).find((candidate) => candidate.name === 'wait_for_review')
+    if (!tool) {
+      setHostDetail('Chrome did not return wait_for_review from getTools().')
+      return
+    }
+
+    const controller = new AbortController()
+    if (!hostControllerRef.current) {
+      hostControllerRef.current = controller
+      setHostExecutionActive(true)
+    }
+    setHostDetail('Chrome discovered wait_for_review and invoked it. Waiting for Done or cancellation.')
+
+    try {
+      const result = await modelContext.executeTool(tool, JSON.stringify({ requestId: `probe-${Date.now()}` }), { signal: controller.signal })
+      setHostDetail(`The same host execution resumed with: ${JSON.stringify(result)}`)
+    } catch (error: unknown) {
+      setHostDetail(error instanceof Error ? error.message : 'The host execution failed.')
+    } finally {
+      if (hostControllerRef.current === controller) {
+        hostControllerRef.current = null
+        setHostExecutionActive(false)
+      }
+    }
+  }
+
+  const cancelHostTest = () => {
+    hostControllerRef.current?.abort(new DOMException('Cancelled by the Phase 1 host test', 'AbortError'))
+  }
+
   return (
     <section className="webmcp-probe ruled-section" aria-labelledby="webmcp-probe-title">
       <div>
@@ -136,7 +181,12 @@ export function WebMcpProbe() {
           <div><dt>Origin isolated</dt><dd>{String(window.originAgentCluster)}</dd></div>
           <div><dt>User agent</dt><dd>{window.navigator.userAgent}</dd></div>
         </dl>
-        <button className="button" type="button" onClick={finishReview} disabled={status !== 'pending'}>Done <span aria-hidden="true">→</span></button>
+        <div className="probe-actions">
+          <button className="button button-secondary" type="button" onClick={() => void invokeHostTest()} disabled={status === 'checking' || status === 'unavailable'}>Invoke host test</button>
+          <button className="button button-secondary" type="button" onClick={cancelHostTest} disabled={!hostExecutionActive}>Cancel execution</button>
+          <button className="button" type="button" onClick={finishReview} disabled={status !== 'pending'}>Done <span aria-hidden="true">→</span></button>
+        </div>
+        <p className="probe-host-detail"><b>Host trace:</b> {hostDetail}</p>
       </div>
     </section>
   )
