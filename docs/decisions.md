@@ -80,3 +80,20 @@
 - The skill validator could not start because its own Python environment lacks PyYAML. Frontmatter and required fields were checked with Ruby's standard YAML parser instead; no skill package dependency was added to the product for a validator-only need.
 - Ran the acceptance path through a real active Chrome `wait_for_review`: retrieved a JSX text replacement, a foreground-color correction, and a nine-target lasso instruction; traced them to `App.tsx` and `App.css`; applied one minimal patch; passed typecheck, lint, 22 tests, production build, and live visual inspection; then acknowledged all three exact IDs as applied.
 - Kept the development host harness honest and reusable: it now waits and retrieves without auto-acknowledging. The acknowledgement control is enabled only after retrieval, so Codex can apply and validate source before recording success.
+
+## Phase 7–9 execution split (approved submission plan)
+
+- Recreated Phase 7+ on a clean cloud branch from `origin/main` at `d2db4e2` (phase-6). The user’s local Desktop checkout may contain uncommitted Phase 7 CLI WIP and must remain untouched; cloud work does not stash, reset, or edit that machine.
+- Phase 8 prepares the dogfood surface (hosted sandbox mode, deploy-ready landing sections, reset/waiter/recording checklist) but does not submit corrections or record the user’s demo.
+- Phase 9 hardens the tool (Playwright suite, ≥90% mapping coverage, release gate). The user-operated dogfood/recording gate runs only after those checks.
+- Public npm publish (names/version/account) and paid/DNS deploy decisions remain explicit human approval gates after hardening.
+- Experience constraints for vibe-coder ICP: one setup command (`reviewplane init`), no provenance/confidence dashboards, no source-mapping jargon in the UI, plain-language warnings only, Done uses WebMCP when connected else copy/download, never claim WebMCP wakes an idle agent, ordinary consumer production excludes ReviewPlane, hosted sandbox is an explicit separate mode.
+- Source ownership and agent apply instructions stay inside the skills; the CLI installs skill copies and bounded `AGENTS.md` guidance without turning ownership into a UI concern.
+
+## Phase 7
+
+- Compiled `@reviewplane/core`, `@reviewplane/vite`, `@reviewplane/react`, and `reviewplane` CLI to real `dist` exports via tsup. Renamed the root package to `@reviewplane/monorepo` so the publishable CLI can own the unscoped `reviewplane` name for `npx reviewplane`.
+- `reviewplane init` is the one-command path: detect React+Vite, install guidance, patch vite.config, mount the overlay behind `import.meta.env.DEV`, install skills under `.agents/skills`, and append bounded `AGENTS.md` guidance. `check` stays advanced troubleshooting.
+- Skipped a custom ESLint plugin for the MVP cut line; `check` surfaces dynamic/external/stale/production guidance in plain language instead.
+- Fixture apps cover plain Vite React, SWC+Tailwind, and Tailwind+Radix. Mapping coverage tests require ≥90% intrinsic JSX coverage. Pack smoke installs tarballs into a disposable fixture and proves init + production exclusion.
+- Overlay now registers the four WebMCP tools itself so consumer apps do not depend on the landing probe.

@@ -1072,31 +1072,31 @@ A clean external React and Vite application can install the packed SDK, complete
 
 ---
 
-# Phase 8: Dogfood ReviewPlane on its own landing page
+# Phase 8: Prepare the dogfood surface and hosted sandbox
 
-Return to the frozen baseline landing page.
+Phase 8 prepares everything required for a reliable live demo. It does **not** perform the user-operated dogfood recording or submit corrections on the user’s behalf.
 
-Use ReviewPlane to correct genuine residual problems. Do not script artificial defects.
+The coding agent:
 
-The dogfood pass must include:
+1. Adds an explicit hosted-sandbox build mode for the landing app.
+2. Keeps the overlay task-focused for vibe-coder ICP (plain-language status, Done with WebMCP-or-copy fallback, no provenance dashboards).
+3. Makes the landing page deploy-ready with the required marketing and sandbox sections.
+4. Prepares baseline/reset/waiter/recording checklist artifacts for the human operator.
+5. Verifies sandbox behavior with fixtures and automated checks.
 
-1. Rewrite weak hero copy through text selection.
-2. Correct a real font-size ratio.
-3. Change a foreground or background color.
-4. Select and shorten another piece of copy.
-5. Lasso a repeated section.
-6. Add a hierarchy or density instruction.
-7. Show several corrections in the tray.
-8. Press Done once.
-9. Let Codex edit the React source.
-10. Show the source diff.
-11. Show the live rerender.
+The human operator owns the later live demo gate (after Phase 9 hardening):
 
-Commit and tag the agent-applied result:
+1. Generate or open a fresh page from their brief/DESIGN.md/prompt when recording an external install demo, **or** use this landing page for the product dogfood recording.
+2. Interact with ReviewPlane live (text, style, lasso, tray, Done).
+3. Let a waiting coding agent apply the batch.
+4. Record the review → source-edit → rerender loop.
+5. Tag the agent-applied result only after that real pass:
 
 ```bash
 git tag reviewplane-edited
 ```
+
+Do not script artificial defects during preparation. Do not submit the user’s demo corrections in this phase.
 
 ## Landing-page requirements
 
@@ -1107,10 +1107,10 @@ The public landing page should contain:
 - The interactive ReviewPlane experience
 - Correction tray
 - Payload viewer for visitors without a waiting agent
-- Before-and-after comparison backed by the real baseline
+- Before-and-after comparison slots backed by the real baseline tag
 - Clone instructions
 - SDK installation instructions
-- Demo video
+- Demo video placeholder (URL filled after recording)
 - Supported-scope table
 - GitHub link
 
@@ -1130,15 +1130,18 @@ Default consumer production builds must exclude ReviewPlane.
 
 ## Phase 8 acceptance gate
 
-- ReviewPlane has improved its own baseline landing page.
-- The before state comes from the tagged agent-generated baseline.
-- The after state comes from a real ReviewPlane batch applied by Codex.
-- The public sandbox works without repository write access.
-- The cloned mode supports the real source-editing loop.
+- Hosted sandbox mode exists and is distinct from ordinary production exclusion.
+- Landing page is deploy-ready with required sections and sandbox/clone copy.
+- Overlay + Done behavior is honest (WebMCP when connected, else copy/download; never claims idle-agent wake-up).
+- Baseline/reset/waiter/recording checklist exists for the human operator.
+- No user demo corrections were submitted by the implementation agent.
+- Automated sandbox/fixture checks pass.
 
 ---
 
-# Phase 9: Test the complete product path
+# Phase 9: Harden the tool and release-gate checks
+
+Phase 9 hardens ReviewPlane itself. The user-operated dogfood/recording gate runs **after** these checks pass.
 
 Use Playwright for browser behavior.
 
@@ -1168,8 +1171,11 @@ Automate:
 - Hot-reload restoration
 - Stale-target behavior
 - Production exclusion
+- Hosted-sandbox inclusion behavior
 - Narrow viewport behavior
 - Keyboard navigation
+
+Measure source-mapping coverage on fixture apps and require at least 90 percent of ordinary visible static DOM targets to map correctly.
 
 Manually test the real WebMCP flow in the intended submission environment.
 
@@ -1187,6 +1193,17 @@ A mocked tool bridge does not satisfy the real-browser gate.
 - Default production builds contain no ReviewPlane runtime or source metadata.
 - The hosted sandbox cannot mutate the repository.
 - The complete demo flow can be performed reliably several times.
+
+## Human dogfood / recording gate (after Phase 9)
+
+Stop here for the user-operated live demo. The implementation agent must not generate the user’s demo landing page, choose their corrections, or perform their recording sequence.
+
+The user:
+
+1. Follows the Phase 8 recording checklist.
+2. Runs the live review → Done → waiting-agent source-edit loop.
+3. Records the under-three-minute demo video.
+4. Approves public npm publish names/version/account and paid/DNS deploy decisions separately.
 
 ---
 

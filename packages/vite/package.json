@@ -1,27 +1,34 @@
 {
   "name": "@reviewplane/vite",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "description": "Vite plugin that maps React JSX to ReviewPlane source IDs",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit",
+    "build": "tsup src/index.ts --format esm --dts --clean --outDir dist --external vite",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepack": "npm run build"
   },
   "peerDependencies": {
-    "vite": "^8.0.0"
+    "vite": "^6.0.0 || ^7.0.0 || ^8.0.0"
   },
   "dependencies": {
-    "@reviewplane/core": "*"
-  },
-  "devDependencies": {
     "@babel/generator": "^8.0.0",
     "@babel/parser": "^8.0.4",
     "@babel/traverse": "^8.0.4",
     "@babel/types": "^8.0.4",
+    "@reviewplane/core": "0.1.0"
+  },
+  "devDependencies": {
     "@types/node": "^26.4.1",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",

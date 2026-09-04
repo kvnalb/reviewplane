@@ -1,6 +1,37 @@
 {
   "name": "reviewplane",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module"
+  "version": "0.1.0",
+  "description": "One-command ReviewPlane setup for React + Vite apps",
+  "type": "module",
+  "bin": {
+    "reviewplane": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:pack": "node ../../scripts/pack-smoke.mjs",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@reviewplane/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.0"
+  }
 }
