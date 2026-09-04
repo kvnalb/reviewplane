@@ -36,6 +36,8 @@ Check an installation with:
 npx reviewplane check
 ```
 
+Before npm publication, follow the [local release-candidate setup](./docs/setup.md#install-the-release-candidate-before-publication). The same guide documents the complete agent-waiting review loop.
+
 Supported now:
 
 - React 18 and 19

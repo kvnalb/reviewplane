@@ -1092,7 +1092,7 @@ A clean application in every supported fixture can install the packed SDK throug
 
 ---
 
-# Phase 8: Prepare the untouched human-demo sandbox
+# Phase 8: Prepare the initial package demo and testbed
 
 Prepare a fresh React landing page for the finished ReviewPlane package from:
 
@@ -1101,9 +1101,9 @@ Prepare a fresh React landing page for the finished ReviewPlane package from:
 - `apps/landing/DESIGN.md`
 - A recorded generation prompt derived from those inputs
 
-This page is the human dogfood and recording surface. It must be plausible and complete, but it must not be pre-reviewed with ReviewPlane by the implementing agent.
+This page begins as a fresh package demo. After generation it becomes the repeatable integration testbed for the real human-to-agent loop. It is not the final recording surface.
 
-The implementing agent may verify setup, loading, selection mechanics against separate fixtures. It must not pick corrections, stage a batch, press Done, patch the demo page, or rehearse the live scene. That preserves a genuine first review for the user.
+The user and coding agent may review, patch, reset, and repeat against this page until the package and setup instructions are stable. Bugs discovered in these loops must be fixed before the final recording page is generated.
 
 Prepare the surface so the later human pass can include:
 
@@ -1152,11 +1152,11 @@ Default consumer production builds must exclude ReviewPlane.
 ## Phase 8 acceptance gate
 
 - A fresh landing page has been generated from the approved brief, design system, and recorded prompt.
-- The page has not been reviewed, corrected, or rehearsed through ReviewPlane by the implementing agent.
+- The page is available as a disposable full-loop integration testbed.
 - ReviewPlane is installed through the release-candidate package path.
 - The public sandbox works without repository write access.
 - The cloned mode supports the real source-editing loop.
-- The user can begin a first-take review while Codex waits for the batch.
+- The user can repeatedly test the real source-editing loop while Codex waits for each batch.
 
 ---
 
@@ -1193,7 +1193,7 @@ Automate:
 - Narrow viewport behavior
 - Keyboard navigation
 
-Manually test the real WebMCP flow in the intended submission environment.
+Manually test the real WebMCP flow against the existing `apps/demo` integration testbed in the intended submission environment. Repeat the complete wait, review, apply, validate, acknowledge, and reload loop while fixing discovered defects.
 
 A mocked tool bridge does not satisfy the real-browser gate.
 
@@ -1212,19 +1212,31 @@ A mocked tool bridge does not satisfy the real-browser gate.
 
 The compatibility matrix must pass on React 18, React 19, Vite React, Vite React SWC, CSS Modules, Tailwind, and shadcn/Radix fixtures. Next.js remains roadmap work.
 
-## Human dogfood and recording gate
+## Stabilization loop
 
-After Phase 9 hardening passes, stop and hand control to the user.
+Before recording:
+
+1. Build the versioned release-candidate tarballs and publish exact setup instructions.
+2. Codex calls `wait_for_review` against the existing `apps/demo` page.
+3. The user performs a real review and presses Done.
+4. Codex retrieves the batch, edits source, validates, and acknowledges the corrections.
+5. Repeat as needed, fixing package, setup, browser, and UX defects discovered by the loop.
+
+This loop is not the final recording and may be rehearsed freely.
+
+## Final dogfood and recording gate
+
+After the user declares the package loop stable, generate a new React landing page from the approved product brief, `DESIGN.md`, and a recorded generation prompt. Do not pre-run ReviewPlane against this new page.
 
 During the live take:
 
 1. Codex calls `wait_for_review` and waits.
-2. The user performs the first ReviewPlane review on the untouched Phase 8 page and records it.
+2. The user performs the first ReviewPlane review on the newly generated page and records it.
 3. The user presses Done once.
 4. Codex retrieves the real batch, edits source, validates, shows the diff, and acknowledges the corrections.
 5. Commit and tag the applied result as `reviewplane-edited`.
 
-Do not begin Phase 10 until the user approves the recorded take and the resulting page.
+Do not begin Phase 10 until the user approves the recorded take and resulting page.
 
 ---
 
@@ -1289,7 +1301,7 @@ If an agent helped compare the alternatives, show that comparison.
 
 Keep this section visual and compressed.
 
-### 0:40 to 0:55: Show fresh demo-page generation
+### 0:40 to 0:55: Show final fresh-page generation
 
 Show Codex receiving:
 
@@ -1300,7 +1312,7 @@ Show Codex receiving:
 
 Speed up the implementation and verification footage.
 
-End on the untouched fresh page Codex considered complete. This is the same page the user reviews for the first time in the live take.
+End on the untouched final page Codex considered complete. The earlier package testbed is not used in this shot; this newly generated page receives its first ReviewPlane review in the live take.
 
 ### 0:55 to 1:08: Identify the residual problem
 

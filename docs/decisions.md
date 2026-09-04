@@ -121,3 +121,10 @@
 - Added native color pickers beside the exact CSS color text, preserving transparent and advanced values that a native opaque picker cannot represent. Font size now uses an 8–120 px slider with a visible exact-value readout.
 - The first Done attempt was technically successful but visually ambiguous: submitted corrections disappeared into a `0 pending` empty state, and fallback actions inherited low-contrast toolbar styling. The tray now switches to an explicit completion state, says whether a waiting agent received the batch, lists the submitted changes, and presents clearly actionable copy/download controls.
 - In-page anchor navigation changed `location.hash` after the draft began, causing new corrections to be rejected as if they belonged to another review. Corrections now consistently use the active draft's captured route and viewport; an end-to-end regression test changes the hash before staging.
+
+## Sequencing update after Phase 9
+
+- Reassigned `apps/demo` from protected first-take surface to repeatable integration testbed. The user and agent will exercise the full WebMCP-to-source loop there and fix discovered bugs before recording.
+- Moved fresh landing-page generation to the final recording gate. The recording page will be created only after the package loop is stable and will not be pre-reviewed before the live take.
+- Added a reproducible `pack:release` command and exact pre-publication tarball setup instructions. npm publication remains behind the explicit release approval gate.
+- The first release-pack attempt hit root-owned files in the user's global npm cache. The repository pack script now uses an ignored local `.npm-cache` instead of requiring `sudo` or changing global ownership.

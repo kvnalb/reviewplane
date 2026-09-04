@@ -17,6 +17,7 @@
     "build": "npm run build:sdk && npm run build --workspace reviewplane && npm run build --workspace @reviewplane/landing && npm run build --workspace @reviewplane/demo",
     "typecheck": "npm run build:sdk && npm run typecheck --workspace reviewplane && npm run typecheck --workspace @reviewplane/landing && npm run typecheck --workspace @reviewplane/demo",
     "test": "npm run build:sdk && npm run test --workspace @reviewplane/core && npm run test --workspace @reviewplane/react && npm run test --workspace @reviewplane/vite && npm run test --workspace reviewplane",
-    "test:e2e": "npm run test:e2e --workspace @reviewplane/e2e"
+    "test:e2e": "npm run test:e2e --workspace @reviewplane/e2e",
+    "pack:release": "npm run build:sdk && npm run build --workspace reviewplane && node scripts/pack-release.mjs"
   }
 }
