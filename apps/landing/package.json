@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:sandbox": "tsc -b && VITE_REVIEWPLANE_SANDBOX=true vite build",
+    "preview": "vite preview",
+    "preview:sandbox": "VITE_REVIEWPLANE_SANDBOX=true vite preview",
     "typecheck": "tsc -b --pretty false",
-    "lint": "oxlint",
-    "preview": "vite preview"
+    "lint": "oxlint"
   },
   "dependencies": {
     "@fontsource/familjen-grotesk": "^5.2.7",

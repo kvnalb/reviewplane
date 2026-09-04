@@ -5,6 +5,7 @@ button, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid #be3227; outline-offset: 2px; }
 .rp-layer { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; font: 14px/1.4 ui-sans-serif, system-ui, sans-serif; color: #17211c; }
+.rp-banner { pointer-events: none; position: fixed; top: 0; left: 0; right: 0; z-index: 3; padding: 10px 16px; background: #222c27; color: #eef3f0; font: 600 12px/1.4 ui-sans-serif, system-ui, sans-serif; text-align: center; }
 .rp-toolbar { pointer-events: auto; position: fixed; z-index: 1; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; padding: 7px; border: 1px solid #526058; background: #222c27; color: #eef3f0; box-shadow: 0 18px 45px rgb(18 29 23 / 28%); }
 .rp-brand { padding: 0 10px 0 6px; font-weight: 750; letter-spacing: -.02em; }
 .rp-tool, .rp-primary, .rp-quiet { min-height: 38px; border: 1px solid #526058; border-radius: 2px; padding: 0 12px; background: transparent; color: inherit; }

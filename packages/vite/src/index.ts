@@ -4,6 +4,11 @@ import { resolvedRuntimeModuleId, runtimeModuleId, runtimeSource } from './runti
 
 export type ReviewPlaneViteOptions = {
   exclude?: Exclusion[]
+  /**
+   * `development` (default): instrument only during `vite serve`.
+   * `sandbox`: also instrument production builds for an explicit hosted sandbox.
+   */
+  mode?: 'development' | 'sandbox'
 }
 
 export type ReviewPlaneVitePlugin = Plugin & {
@@ -39,7 +44,10 @@ export function reviewplane(options: ReviewPlaneViteOptions = {}): ReviewPlaneVi
   return {
     name: 'vite-plugin-reviewplane-react',
     enforce: 'pre',
-    apply: 'serve',
+    apply(_config, env) {
+      if (options.mode === 'sandbox') return true
+      return env.command === 'serve'
+    },
     api: { getManifest: currentManifest, getRevision: () => revision },
     configResolved(config: ResolvedConfig) {
       root = config.root
