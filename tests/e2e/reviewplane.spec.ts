@@ -71,6 +71,7 @@ test('supports keyboard activation, hover targeting, and bounded popups', async 
 })
 
 test('previews four direct changes, supports middle undo, and resets to baseline', async ({ page }) => {
+  await page.evaluate(() => { window.location.hash = 'same-page-section' })
   await page.getByRole('button', { name: 'Text', exact: true }).click()
   await selectText(page, '#editable', 'quick brown')
   await page.getByRole('textbox', { name: 'Replacement text' }).fill('careful blue')

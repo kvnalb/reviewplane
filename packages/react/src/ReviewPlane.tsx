@@ -284,7 +284,8 @@ export function ReviewPlane() {
 
   const stage = () => {
     if (!store || !selection) return
-    const context = { route: route(), viewport: store.getDraft()!.viewport }
+    const draft = store.getDraft()!
+    const context = { route: draft.route, viewport: draft.viewport }
     try {
       if (selection.kind === 'group') {
         if (!instruction.trim() || selection.targets.length === 0) throw new Error('Add an instruction for the selected group.')
