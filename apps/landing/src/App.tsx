@@ -8,8 +8,13 @@ import '@fontsource/ibm-plex-mono/latin-400.css'
 import '@fontsource/ibm-plex-mono/latin-500.css'
 import './App.css'
 
+const sandboxEnabled = import.meta.env.VITE_REVIEWPLANE_SANDBOX === 'true'
+const reviewPlaneEnabled = import.meta.env.DEV || sandboxEnabled
 const WebMcpProbe = import.meta.env.DEV ? lazy(() => import('./WebMcpProbe')) : null
-const ReviewPlane = import.meta.env.DEV ? lazy(() => import('@reviewplane/react').then(({ ReviewPlane }) => ({ default: ReviewPlane }))) : null
+const ReviewPlane = reviewPlaneEnabled
+  ? lazy(() => import('@reviewplane/react').then(({ ReviewPlane }) => ({ default: ReviewPlane })))
+  : null
+const reviewPlaneDeploymentMode = sandboxEnabled ? 'sandbox' : 'development'
 
 type IconName =
   | 'arrow'
@@ -267,12 +272,12 @@ function App() {
           <div className="section-intro compact">
             <p className="eyebrow">Built for local development</p>
             <h2>Add it to a React + Vite project.</h2>
-            <p>The package and CLI arrive in Phase 7. These commands show the intended installation surface, not a published release.</p>
+            <p>One setup command configures the Vite plugin, development overlay, and agent skills for a standard React + Vite app.</p>
           </div>
           <div className="command-stack">
-            {['npm install -D @reviewplane/react', 'npx reviewplane init'].map((command) => <div className="command" key={command}><code>{command}</code><button type="button" onClick={() => copyCommand(command)} aria-label={`Copy ${command}`}><Icon name={copied === command ? 'check' : 'copy'} />{copied === command ? 'Copied' : 'Copy'}</button></div>)}
+            {['npm install -D reviewplane @reviewplane/react @reviewplane/vite', 'npx reviewplane init'].map((command) => <div className="command" key={command}><code>{command}</code><button type="button" onClick={() => copyCommand(command)} aria-label={`Copy ${command}`}><Icon name={copied === command ? 'check' : 'copy'} />{copied === command ? 'Copied' : 'Copy'}</button></div>)}
           </div>
-          <p className="dev-warning"><b>Development only.</b> ReviewPlane should not load in a production consumer application unless an explicit hosted sandbox mode is enabled.</p>
+          <p className="dev-warning"><b>Development only.</b> Ordinary production builds exclude ReviewPlane. Hosted sandbox is an explicit separate mode.</p>
         </section>
 
         <section className="scope-section ruled-section" id="scope">
@@ -300,7 +305,7 @@ function App() {
         </section>
 
         {WebMcpProbe && <Suspense fallback={null}><WebMcpProbe /></Suspense>}
-        {ReviewPlane && <Suspense fallback={null}><ReviewPlane /></Suspense>}
+        {ReviewPlane && <Suspense fallback={null}><ReviewPlane deploymentMode={reviewPlaneDeploymentMode} /></Suspense>}
 
         <section className="closing-section ruled-section">
           <div><p className="eyebrow">Make the next edit visible</p><h2>Turn “something feels off” into a correction your agent can act on.</h2></div>

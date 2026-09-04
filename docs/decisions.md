@@ -97,3 +97,9 @@
 - Skipped a custom ESLint plugin for the MVP cut line; `check` surfaces dynamic/external/stale/production guidance in plain language instead.
 - Fixture apps cover plain Vite React, SWC+Tailwind, and Tailwind+Radix. Mapping coverage tests require ≥90% intrinsic JSX coverage. Pack smoke installs tarballs into a disposable fixture and proves init + production exclusion.
 - Overlay now registers the four WebMCP tools itself so consumer apps do not depend on the landing probe.
+
+## Phase 8
+
+- Hosted sandbox is an explicit Vite/plugin mode (`mode: 'sandbox'` / `VITE_REVIEWPLANE_SANDBOX=true`) that may include ReviewPlane in a deployed landing build. Ordinary consumer production builds still exclude it.
+- Softened overlay copy for vibe-coder ICP: no source-path jargon in primary UI, plain-language connection status, Done offers copy/download when no agent waits, sandbox banner explains no public-repo mutation.
+- Added `docs/dogfood-recording-checklist.md` for the human operator. This phase does not submit demo corrections or record video.
