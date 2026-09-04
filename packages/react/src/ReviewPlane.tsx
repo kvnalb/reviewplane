@@ -126,6 +126,7 @@ export function ReviewPlane() {
   const [trayOpen, setTrayOpen] = useState(false)
   const [version, setVersion] = useState(0)
   const [submitted, setSubmitted] = useState<Readonly<SubmittedReview> | null>(null)
+  const [delivery, setDelivery] = useState<'agent' | 'fallback' | null>(null)
   const [deliveryNote, setDeliveryNote] = useState('')
   const [error, setError] = useState('')
   const [bridgeStatus, setBridgeStatus] = useState<BridgeStatus>('unavailable')
@@ -208,7 +209,7 @@ export function ReviewPlane() {
   }, [])
 
   useEffect(() => {
-    const activate = () => { setMode('text'); setTrayOpen(true); setSubmitted(null) }
+    const activate = () => { setMode('text'); setTrayOpen(true); setSubmitted(null); setDelivery(null) }
     const shortcut = (event: KeyboardEvent) => {
       if (event.altKey && event.shiftKey && event.key.toLowerCase() === 'r') { event.preventDefault(); setMode((value) => value === 'idle' ? 'inspect' : 'idle'); setTrayOpen(true) }
       if (event.key === 'Escape') { setMode('idle'); setHover(null); closePopup(); setLasso(null) }
@@ -382,8 +383,8 @@ export function ReviewPlane() {
 
   const removeTarget = (occurrenceId: string) => setSelection((current) => current?.kind === 'group' ? { ...current, targets: current.targets.filter((target) => target.occurrenceId !== occurrenceId) } : current)
   const mutate = (action: () => void) => { try { action(); setError(''); refresh() } catch (caught) { setError(caught instanceof Error ? caught.message : 'Action failed.') } }
-  const reset = () => mutate(() => { store?.resetDraft(); setSubmitted(null) })
-  const done = () => mutate(() => { const result = store!.submit(); reviewBridge.publish(result); setSubmitted(result); setMode('idle'); closePopup() })
+  const reset = () => mutate(() => { store?.resetDraft(); setSubmitted(null); setDelivery(null) })
+  const done = () => mutate(() => { const result = store!.submit(); const agentWasWaiting = bridgeStatus === 'waiting'; reviewBridge.publish(result); setSubmitted(result); setDelivery(agentWasWaiting ? 'agent' : 'fallback'); setMode('idle'); closePopup() })
   const newDraft = (restorePreview = false) => mutate(() => {
     if (restorePreview && submitted) {
       for (const correction of submitted.corrections) {
@@ -395,7 +396,7 @@ export function ReviewPlane() {
       document.querySelectorAll('[data-rp-preview-id]').forEach((element) => element.removeAttribute('data-rp-preview-id'))
       document.getElementById('reviewplane-preview-styles')?.remove()
     }
-    store!.beginDraft({ route: route(), viewport: viewport() }); setSubmitted(null); setDeliveryNote('')
+    store!.beginDraft({ route: route(), viewport: viewport() }); setSubmitted(null); setDelivery(null); setDeliveryNote('')
   })
   const copyBatch = async () => {
     if (!submitted) return
@@ -441,17 +442,17 @@ export function ReviewPlane() {
       <div className="rp-actions"><button className="rp-primary" onClick={stage}>Add correction</button></div>
     </div>}
 
-    {trayOpen && <aside className="rp-tray">
-      <div className="rp-head"><div><p className="rp-kicker">Correction tray</p><h3>{active.length} pending</h3></div><button className="rp-link" onClick={() => setTrayOpen(false)}>Hide</button></div>
-      <p className="rp-meta rp-status">{bridgeStatus === 'waiting' ? 'Agent connected and waiting' : bridgeStatus === 'batch-ready' ? 'Review saved' : bridgeStatus === 'acknowledged' ? 'Agent finished this review' : bridgeStatus === 'ready' ? 'Ready for your coding agent' : 'No agent connection · copy after Done'}</p>
-      {entries.length === 0 ? <p className="rp-empty">Select page text or lasso a region to stage your first correction.</p> : <div className="rp-corrections">{entries.map(({ correction, active: isActive }, index) => <div className="rp-correction" key={correction.id}>
+    {trayOpen && <aside className={`rp-tray${submitted ? ' rp-tray-submitted' : ''}`}>
+      <div className="rp-head"><div><p className="rp-kicker">{submitted ? 'Review complete' : 'Correction tray'}</p><h3>{submitted ? `${submitted.corrections.length} change${submitted.corrections.length === 1 ? '' : 's'} ready` : `${active.length} pending`}</h3></div><button className="rp-link" onClick={() => setTrayOpen(false)}>Hide</button></div>
+      {!submitted && <p className="rp-meta rp-status">{bridgeStatus === 'waiting' ? 'Agent connected and waiting' : bridgeStatus === 'ready' ? 'Ready for your coding agent' : 'No agent connection · copy after Done'}</p>}
+      {!submitted && (entries.length === 0 ? <p className="rp-empty">Select page text or lasso a region to stage your first correction.</p> : <div className="rp-corrections">{entries.map(({ correction, active: isActive }, index) => <div className="rp-correction" key={correction.id}>
         <div className="rp-correction-head"><strong>{String(index + 1).padStart(2, '0')} · {correctionLabel(correction)} · {targetLabel(correction.sourceRecord)}</strong>{correction.staleTarget && <span className="rp-stale">Page changed · select again</span>}</div>
         <p className="rp-summary" style={{ opacity: isActive ? 1 : .5 }}>{isActive ? summary(correction) : `Undone · ${summary(correction)}`}</p>
         {editing === correction.id ? <div className="rp-edit"><input value={editValue} onChange={(event) => setEditValue(event.target.value)}/><button className="rp-link" onClick={() => mutate(() => { store.editCorrection(correction.id, { requestedValue: editValue }); setEditing(null) })}>Save</button></div> : isActive && <div className="rp-actions"><button className="rp-link" onClick={() => { setEditing(correction.id); setEditValue(correction.requestedValue) }}>Edit</button><button className="rp-link" onClick={() => mutate(() => store.undoCorrection(correction.id))}>Undo</button><button className="rp-link rp-danger" onClick={() => mutate(() => store.removeCorrection(correction.id))}>Remove</button></div>}
-      </div>)}</div>}
+      </div>)}</div>)}
       {error && !selection && <p className="rp-meta rp-stale">{error}</p>}
-      {submitted && <><p className="rp-meta">{bridgeStatus === 'waiting' ? `Your waiting agent received ${submitted.corrections.length} change${submitted.corrections.length === 1 ? '' : 's'}.` : `${submitted.corrections.length} change${submitted.corrections.length === 1 ? '' : 's'} ready. Connect a waiting agent, or copy or download the review.`}</p><div className="rp-actions"><button className="rp-quiet" onClick={() => void copyBatch()}>Copy review</button><button className="rp-quiet" onClick={downloadBatch}>Download review</button></div>{deliveryNote && <p className="rp-meta" role="status">{deliveryNote}</p>}</>}
-      <div className="rp-actions">{submitted ? <button className="rp-primary" onClick={() => newDraft(bridgeStatus !== 'acknowledged')}>{bridgeStatus === 'acknowledged' ? 'Start another review' : 'Reset page'}</button> : <><button className="rp-quiet" disabled={!entries.length} onClick={reset}>Reset all</button><button className="rp-primary" disabled={!active.length} onClick={done}>Done</button></>}</div>
+      {submitted && <section className="rp-complete"><div className="rp-complete-message"><span className="rp-check" aria-hidden="true">✓</span><div><strong>{delivery === 'agent' ? 'Sent to your waiting agent' : 'Saved in this browser'}</strong><p>{delivery === 'agent' ? 'Your agent can now retrieve and apply the review.' : 'No agent was waiting. Copy or download the review to continue.'}</p></div></div><div className="rp-submitted-list">{submitted.corrections.map((correction, index) => <p key={correction.id}><span>{String(index + 1).padStart(2, '0')}</span>{summary(correction)}</p>)}</div><div className="rp-submit-actions"><button className="rp-primary" onClick={() => void copyBatch()}>Copy review</button><button className="rp-secondary" onClick={downloadBatch}>Download JSON</button></div>{deliveryNote && <p className="rp-meta" role="status">{deliveryNote}</p>}<button className="rp-start-over" onClick={() => newDraft(bridgeStatus !== 'acknowledged')}>{bridgeStatus === 'acknowledged' ? 'Start another review' : 'Reset page'}</button></section>}
+      {!submitted && <div className="rp-actions"><button className="rp-quiet" disabled={!entries.length} onClick={reset}>Reset all</button><button className="rp-primary" disabled={!active.length} onClick={done}>Done</button></div>}
     </aside>}
 
     <div className="rp-toolbar" role="toolbar" aria-label="ReviewPlane tools">

@@ -122,7 +122,7 @@ test('submits without a waiter, offers fallback, and restores the page', async (
   await page.getByRole('button', { name: 'Add correction' }).click()
   await page.getByRole('button', { name: 'Done' }).click()
   await expect(page.getByRole('button', { name: 'Copy review' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Download review' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Download JSON' })).toBeVisible()
   await expect(page.locator('body')).not.toContainText('src/App.tsx')
   await page.getByRole('button', { name: 'Reset page' }).click()
   await expect(page.getByRole('heading', { name: '0 pending' })).toBeVisible()
