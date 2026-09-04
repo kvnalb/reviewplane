@@ -152,6 +152,16 @@ export function ReviewPlane() {
   const clearForm = () => {
     setReplacement(''); setForeground(''); setBackground(''); setFontSize(''); setInstruction(''); setScope('element'); setError('')
   }
+  const populateDirectForm = (target: PickedTarget, selectedText = '') => {
+    const computed = getComputedStyle(target.element)
+    setReplacement(selectedText)
+    setForeground(computed.color)
+    setBackground(computed.backgroundColor)
+    setFontSize(computed.fontSize)
+    setInstruction('')
+    setScope('element')
+    setError('')
+  }
   const closePopup = () => { setSelection(null); clearForm() }
 
   useEffect(() => {
@@ -203,7 +213,7 @@ export function ReviewPlane() {
       if (isOverlayEvent(event)) return
       const target = pick(mappedElement(event.target as Node))
       if (!target) return
-      event.preventDefault(); event.stopPropagation(); setSelection({ kind: 'direct', target }); clearForm(); setTrayOpen(true)
+      event.preventDefault(); event.stopPropagation(); setSelection({ kind: 'direct', target }); populateDirectForm(target); setTrayOpen(true)
     }
     document.addEventListener('mousemove', move, true)
     document.addEventListener('click', click, true)
@@ -225,7 +235,7 @@ export function ReviewPlane() {
         if (!target || !directTextNode(startElement)) { setError('This element has nested text. Use Lasso and leave an instruction instead.'); return }
         const offsets = offsetsWithin(startElement, range)
         setSelection({ kind: 'direct', target, range, ...offsets, selectedText: range.toString() })
-        setReplacement(range.toString()); setError(''); setTrayOpen(true)
+        populateDirectForm(target, range.toString()); setTrayOpen(true)
         return
       }
       const targets = removeRedundantTargets([...document.querySelectorAll<HTMLElement>('[data-rp-source-id]')]
@@ -408,8 +418,8 @@ export function ReviewPlane() {
       {selection.kind === 'direct' ? <>
         {selection.selectedText && <label className="rp-field"><span>Replacement text</span><textarea value={replacement} onChange={(event) => setReplacement(event.target.value)}/></label>}
         {!selection.selectedText && <p className="rp-meta">This target was picked as an element. Add one or more style changes below.</p>}
-        <div className="rp-grid"><label className="rp-field"><span>Foreground color</span><input placeholder="e.g. #1f2937" value={foreground} onChange={(event) => setForeground(event.target.value)}/></label><label className="rp-field"><span>Background color</span><input placeholder="e.g. #fff7ed" value={background} onChange={(event) => setBackground(event.target.value)}/></label></div>
-        <div className="rp-grid"><label className="rp-field"><span>Font size</span><input placeholder="e.g. 56px" value={fontSize} onChange={(event) => setFontSize(event.target.value)}/></label><label className="rp-field"><span>Scope</span><select value={scope} onChange={(event) => setScope(event.target.value as ReviewScope)}><option value="element">This element</option><option value="matching-instances">Matching instances</option></select></label></div>
+        <div className="rp-grid"><label className="rp-field"><span>Foreground color</span><input value={foreground} onChange={(event) => setForeground(event.target.value)}/></label><label className="rp-field"><span>Background color</span><input value={background} onChange={(event) => setBackground(event.target.value)}/></label></div>
+        <div className="rp-grid"><label className="rp-field"><span>Font size</span><input value={fontSize} onChange={(event) => setFontSize(event.target.value)}/></label><label className="rp-field"><span>Scope</span><select value={scope} onChange={(event) => setScope(event.target.value as ReviewScope)}><option value="element">This element</option><option value="matching-instances">Matching instances</option></select></label></div>
       </> : <>
         {selection.selectedText && <p className="rp-meta">Cross-element text is captured as context only; ReviewPlane will not fake a rewrite preview.</p>}
         <div className="rp-targets">{selection.targets.map((target, index) => <div className="rp-target" key={target.occurrenceId}><span>{index + 1}. {targetLabel(target.source)}</span><button className="rp-link rp-danger" onClick={() => removeTarget(target.occurrenceId)}>Remove</button></div>)}</div>
