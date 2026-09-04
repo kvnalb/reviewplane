@@ -97,3 +97,13 @@
 - Added copy and JSON-download actions after Done so a user without WebMCP can still hand the same structured batch to a coding agent.
 - Exercised packed `0.1.0` artifacts in three clean external fixtures: React 18 + Vite React + CSS Modules, React 19 + Vite React SWC + Tailwind, and React 19 + Vite React + Radix/shadcn-style composition. Every fixture initialized, mapped its local JSX, submitted a real browser correction, exposed the fallback, built successfully, and excluded ReviewPlane from production.
 - Did not add ESLint rules. The CLI already reports the three reliably detectable cases from this phase (`dangerouslySetInnerHTML`, canvas, and likely external ownership), so a second configuration surface would not improve the MVP setup path.
+
+## Phase 8
+
+- Updated the brief and `DESIGN.md` before generation so the fresh page reflects the approved vibe-coder-first direction: source provenance stays inside the agent batch, Done falls back to copy/download, and compatibility names the supported fixture matrix.
+- Recorded the exact fresh-generation input in `docs/demo-generation-prompt.md`. The page was scaffolded from the official `create-vite@9.2.0` React TypeScript template and generated independently in `apps/demo`; it does not copy the original landing page implementation.
+- Chose one visual risk from the frontend-design process: a dark correction margin interrupts the hero frame and receives a routed selection line. The rest of the page stays on a restrained proof-sheet grid to avoid both dashboard-card repetition and decorative graph paper.
+- Installed ReviewPlane through the `0.1.0` release-candidate workspace packages and the real initializer. A second initializer run changed nothing.
+- Added an explicit Vite sandbox option and demo build mode. The sandbox build includes mapping and the overlay; the ordinary production build contains neither. The public surface explains that it cannot edit the repository.
+- Added a submitted-review reset path that restores text and style previews before starting a fresh hosted review. Acknowledged cloned reviews keep the source-rendered result instead.
+- Browser verification inspected only page rendering, semantics, and sandbox loading. No ReviewPlane target was selected on `apps/demo`, no correction or batch was created, no tool was invoked, and no recording sequence was rehearsed.

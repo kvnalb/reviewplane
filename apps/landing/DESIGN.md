@@ -4,7 +4,7 @@
 
 ReviewPlane should feel like a technical proof under active review. The marketing page is a calm, light application plane. Review controls appear on a distinct dark utility plane above it. Blueprint-blue geometry identifies targets and focus; vermilion marks a requested change; green communicates a verified or connected state.
 
-The signature is one visible path from rendered element to correction: selection rectangle → source-coordinate label → routed line → correction tray entry. Spend visual boldness there. Elsewhere, use disciplined spacing, exact alignment, and restrained color.
+The signature is one visible path from rendered element to correction: selection rectangle → plain target label → routed line → correction tray entry. Spend visual boldness there. Elsewhere, use disciplined spacing, exact alignment, and restrained color.
 
 The interface must not resemble a generic dark AI dashboard, a purple-gradient SaaS page, or a nostalgic paper document. “Proof sheet” describes the relationship between content and review marks, not a decorative texture.
 
@@ -63,7 +63,7 @@ The interface must not resemble a generic dark AI dashboard, a purple-gradient S
 
 - **Display:** `"Familjen Grotesk", "Arial Narrow", sans-serif`. Use weights 500 and 600. Its compact, engineered shapes carry headings and large numeric markers.
 - **Body/UI:** `"IBM Plex Sans", "Helvetica Neue", Arial, sans-serif`. Use weights 400, 500, and 600.
-- **Technical:** `"IBM Plex Mono", "SFMono-Regular", Consolas, monospace`. Use weights 400 and 500 for source paths, coordinates, payloads, keycaps, and status metadata.
+- **Technical:** `"IBM Plex Mono", "SFMono-Regular", Consolas, monospace`. Use weights 400 and 500 for commands, keycaps, package versions, and compact status metadata.
 
 Load only required webfont files. The page must remain legible with the fallback stack.
 
@@ -169,7 +169,7 @@ Use a 4px base with this fixed scale:
 
 ### Radii
 
-- `4px`: tiny source chips and keycaps
+- `4px`: tiny status chips and keycaps
 - `8px`: buttons, inputs, code blocks
 - `10px`: tool panels
 - `12px`: page cards and proof panels
@@ -197,7 +197,7 @@ Use a 4px base with this fixed scale:
 ### Inspector popup
 
 - Dark tool surface with a maximum width of `360px`.
-- Top row: source coordinate in mono-sm and a clear close control.
+- Top row: a plain-language target label such as **Heading** or **Button** and a clear close control.
 - Main controls follow the selected content: replacement first, then previewable style changes, then scope.
 - Labels stay visible above fields; placeholders never replace labels.
 - The popup uses blue for current selection and vermilion only for explicit changes.
@@ -207,9 +207,9 @@ Use a 4px base with this fixed scale:
 - Desktop: fixed to the right with width `360px`, maximum height `min(720px, calc(100vh - 32px))`.
 - Mobile: anchored bottom sheet, maximum height `62vh`, with page context still visible.
 - Header: **Review batch**, pending count, and connection state.
-- Body: ordered correction rows with summary, scope, source hint, stale state, edit, undo, and remove.
+- Body: ordered correction rows with a plain-language change label, summary, scope, stale state, edit, undo, and remove. Source paths and confidence stay in the agent batch, not this UI.
 - Footer: Reset as a quiet destructive action; Done as the one primary action.
-- Done helper text must state whether an agent is waiting or the payload will be shown locally.
+- Done helper text must state whether an agent is waiting or the review can be copied or downloaded.
 
 ### Target geometry
 
@@ -286,13 +286,13 @@ Use a 4px base with this fixed scale:
 │ Mark what you want changed         ┌─ Review batch ─────────┐│
 │ without hunting through source.    │ ● Ready       3 items ││
 │                                    │                       ││
-│ Select copy, adjust visible        │ ▌Replace text         ││
-│ styles, or mark a group.           │  App.tsx:18           ││
-│                                    │  This element         ││
+│ Select copy, adjust visible        │ ▌Text change          ││
+│ styles, or mark a group.           │  Heading              ││
+│                                    │  This item            ││
 │ [Start reviewing] [Inspect batch]  │                       ││
 │         ┌──────────────────────┐   │ [Reset]       [Done] ││
 │         │ [rendered page] ─────┼──▶│                       ││
-│         │          App.tsx:18  │   └───────────────────────┘│
+│         │       Selected text  │   └───────────────────────┘│
 │         └──────────────────────┘                            │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -313,7 +313,7 @@ The numbers represent real sequence and are therefore allowed. Each step contain
 Use one shared **Done** row that forks into two outcomes. This makes the difference structural rather than burying it in paragraphs:
 
 ```text
-                         ┌─ Hosted: show payload in this tab
+                         ┌─ Hosted: copy or download review
 DONE freezes batch ──────┤
                          └─ Clone: resolve waiting agent tool
 ```

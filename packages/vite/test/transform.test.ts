@@ -81,6 +81,17 @@ describe('file filtering', () => {
 })
 
 describe('Vite plugin', () => {
+  it('runs in builds only for an explicit hosted sandbox', () => {
+    const developmentOnly = reviewplane()
+    const sandbox = reviewplane({ sandbox: true })
+    const applies = developmentOnly.apply as (config: object, environment: { command: 'serve' | 'build' }) => boolean
+    const sandboxApplies = sandbox.apply as typeof applies
+
+    expect(applies({}, { command: 'serve' })).toBe(true)
+    expect(applies({}, { command: 'build' })).toBe(false)
+    expect(sandboxApplies({}, { command: 'build' })).toBe(true)
+  })
+
   it('refreshes the manifest during hot updates and serves the endpoint', async () => {
     const plugin = reviewplane()
     const file = `${root}/src/App.tsx`

@@ -4,6 +4,7 @@ import { resolvedRuntimeModuleId, runtimeModuleId, runtimeSource } from './runti
 
 export type ReviewPlaneViteOptions = {
   exclude?: Exclusion[]
+  sandbox?: boolean
 }
 
 export type ReviewPlaneVitePlugin = Plugin & {
@@ -39,7 +40,7 @@ export function reviewplane(options: ReviewPlaneViteOptions = {}): ReviewPlaneVi
   return {
     name: 'vite-plugin-reviewplane-react',
     enforce: 'pre',
-    apply: 'serve',
+    apply: (_config, environment) => environment.command === 'serve' || options.sandbox === true,
     api: { getManifest: currentManifest, getRevision: () => revision },
     configResolved(config: ResolvedConfig) {
       root = config.root

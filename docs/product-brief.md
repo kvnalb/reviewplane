@@ -6,9 +6,9 @@ ReviewPlane turns corrections marked on a running React page into one source-awa
 
 ## Intended users
 
-The primary user is a developer, designer, product manager, or founder reviewing a React interface produced with a coding agent. They can recognize what feels wrong in the rendered page, but translating every visual judgment into file names, selectors, component names, and separate prose prompts slows the review loop.
+The primary user is a vibe coder building a React interface with a coding agent. They can recognize what feels wrong in the rendered page, but they should not need to know the component tree, CSS architecture, or source file before asking for a change.
 
-A secondary user is a coding agent operating inside a cloned ReviewPlane repository or a React and Vite project that has adopted the SDK. The agent needs structured evidence that connects human intent to the likely source while preserving responsibility for the final source-level decision.
+A secondary user is an experienced developer, designer, product manager, or founder who wants a faster visual review loop. The coding agent operating in the project receives structured evidence behind the scenes and remains responsible for the final source-level decision.
 
 ## The concrete workflow problem
 
@@ -61,7 +61,7 @@ The page should answer five questions in this order:
 
 1. **What is it?** A rendered-page review layer for React and coding agents.
 2. **Can I understand it by using it?** Yes; the visitor can start reviewing the landing page itself.
-3. **What happens after Done?** A waiting agent receives the batch; otherwise the browser displays the payload.
+3. **What happens after Done?** A waiting agent receives the batch; otherwise the person can copy or download the review.
 4. **How does it reach source?** Instrumented JSX supplies source hints, while the agent verifies the canonical value.
 5. **Can I use it in my project?** Yes, for the supported React and Vite development path, with explicit limits.
 
@@ -82,7 +82,7 @@ These rules adapt the [Stripe Atlas landing-page copy guide](https://stripe.com/
 
 ### One reader, idea, promise, and offer
 
-- **One reader:** a developer reviewing a React interface produced with a coding agent.
+- **One reader:** a vibe coder reviewing a React interface produced with a coding agent.
 - **One big idea:** the rendered page can carry the review context that gets lost in a prose prompt.
 - **One promise:** stage several corrections and hand the agent one batch with targets, source hints, scope, and browser context.
 - **One offer:** start reviewing the landing page itself.
@@ -91,13 +91,13 @@ ReviewPlane defines an emerging workflow, so the hero should begin with the fami
 
 ### Required core copy
 
-- Audience line: **For developers reviewing React interfaces with a coding agent.**
-- Positioning line: **Mark what you want changed without hunting through the component tree.**
-- Supporting line: **Select text, adjust a visible style, or draw around a group. ReviewPlane packages your corrections with source hints and browser context, ready for your coding agent.**
+- Audience line: **For people building React apps with coding agents.**
+- Positioning line: **Fix the page you see. Skip the source hunt.**
+- Supporting line: **Select words, adjust a visible style, or draw around a group. ReviewPlane gives your coding agent one review with the context to make the changes.**
 - Primary action: **Start reviewing this page**
 - Secondary action: **Inspect a sample batch**
 - Objection line: **You can mark a supported target even if you do not know which file or class produced it.**
-- Done explanation: **Done freezes the corrections you staged. A waiting agent receives the batch; otherwise, ReviewPlane shows you the payload.**
+- Done explanation: **Done packages the changes you staged. A waiting agent receives the review; otherwise, copy or download it.**
 - Hosted-mode notice: **Preview changes in this tab. The public sandbox cannot edit the repository.**
 - Cloned-mode notice: **Work from a clone to let a waiting coding agent edit source, run checks, and trigger Vite's rerender.**
 
@@ -129,8 +129,8 @@ ReviewPlane defines an emerging workflow, so the hero should begin with the fami
 
 #### Installation
 
-- Heading: **Add ReviewPlane to a React and Vite project.**
-- Body: **Run the initializer, verify the integration, then start your existing development server.**
+- Heading: **Add ReviewPlane with one command.**
+- Body: **Run the initializer in your React and Vite project, then start your existing development server.**
 
 #### Supported scope
 
@@ -176,7 +176,7 @@ Claims about WebMCP handoff and production exclusion must be presented as implem
 
 1. **Navigation:** ReviewPlane wordmark, Workflow, Scope, Install, GitHub, and one **Start reviewing** action.
 2. **Hero:** required audience, positioning, and supporting lines; primary and secondary actions; and an interactive product composition showing a selection connected to a correction tray.
-3. **Live self-review sandbox:** toolbar, selectable page content, correction tray, connection status, reset, Done, and a payload viewer for visitors without a waiting agent. Before ReviewPlane is implemented, the baseline may use a clearly labeled nonfunctional product illustration; it must not fake successful tool behavior.
+3. **Live self-review sandbox:** toolbar, selectable page content, correction tray, connection status, reset, Done, and copy/download fallback for visitors without a waiting agent. The primary UI must not expose source provenance or mapping confidence.
 4. **Workflow:** four ordered actions, **Select → Stage → Done → Apply**, with one sentence explaining the responsibility at each step.
 5. **Handoff anatomy:** show the compact batch summary first, followed by a single correction with target, source hint, requested value, scope, and context.
 6. **Before and after:** reserve a truthful comparison region. The baseline side must eventually come from the `baseline-agent-generated` tag and the after side from the real dogfood batch. Before those artifacts exist, label the region as pending rather than inventing evidence.
@@ -194,7 +194,7 @@ Claims about WebMCP handoff and production exclusion must be presented as implem
 - The workflow composition should remain understandable without animation.
 - Copy buttons for installation commands provide visible success feedback when implemented.
 - The before-and-after control must work with keyboard and pointer input once real artifacts exist.
-- Payload disclosure must be user-controlled and readable without horizontal page scrolling.
+- Copy and download fallbacks must explain what to do with the saved review.
 - Reduced-motion preferences disable nonessential motion.
 
 The Phase 0C baseline should implement normal page interactions, but it must not simulate the ReviewPlane overlay, WebMCP registration, source handoff, or dogfood evidence before those phases exist.
@@ -219,16 +219,18 @@ npx reviewplane init
 npx reviewplane check
 ```
 
-Until Phase 7 ships the CLI, the landing page must label these commands as planned and direct contributors to the repository instructions instead of claiming they are publicly installable.
+Until npm publication is explicitly approved and completed, the landing page must label the command as the release-candidate path rather than claiming it is already public.
 
 ## Supported and unsupported cases
 
 ### Supported MVP target
 
-- React with TypeScript and Vite
+- React 18 or 19 with TypeScript and Vite
+- Vite React or Vite React SWC
 - JSX and TSX intrinsic DOM elements
 - Static text and ordinary component-prop text
 - CSS, CSS Modules, Tailwind class strings, and inline styles
+- shadcn/ui and Radix component composition when local intrinsic DOM elements remain mappable
 - Direct text selection within one mapped element
 - Cross-element and rectangular group instructions
 - This-element and matching-instances scopes

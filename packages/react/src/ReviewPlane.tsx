@@ -362,7 +362,19 @@ export function ReviewPlane() {
   const mutate = (action: () => void) => { try { action(); setError(''); refresh() } catch (caught) { setError(caught instanceof Error ? caught.message : 'Action failed.') } }
   const reset = () => mutate(() => { store?.resetDraft(); setSubmitted(null) })
   const done = () => mutate(() => { const result = store!.submit(); reviewBridge.publish(result); setSubmitted(result); setMode('idle'); closePopup() })
-  const newDraft = () => mutate(() => { store!.beginDraft({ route: route(), viewport: viewport() }); setSubmitted(null); setDeliveryNote('') })
+  const newDraft = (restorePreview = false) => mutate(() => {
+    if (restorePreview && submitted) {
+      for (const correction of submitted.corrections) {
+        if (correction.kind !== 'text-replacement') continue
+        const element = document.querySelector<HTMLElement>(`[data-rp-occurrence-id="${correction.runtimeOccurrenceId}"]`)
+        const node = element && directTextNode(element)
+        if (node) node.nodeValue = correction.originalValue
+      }
+      document.querySelectorAll('[data-rp-preview-id]').forEach((element) => element.removeAttribute('data-rp-preview-id'))
+      document.getElementById('reviewplane-preview-styles')?.remove()
+    }
+    store!.beginDraft({ route: route(), viewport: viewport() }); setSubmitted(null); setDeliveryNote('')
+  })
   const copyBatch = async () => {
     if (!submitted) return
     try {
@@ -417,7 +429,7 @@ export function ReviewPlane() {
       </div>)}</div>}
       {error && !selection && <p className="rp-meta rp-stale">{error}</p>}
       {submitted && <><p className="rp-meta">{bridgeStatus === 'waiting' ? `Your waiting agent received ${submitted.corrections.length} change${submitted.corrections.length === 1 ? '' : 's'}.` : `${submitted.corrections.length} change${submitted.corrections.length === 1 ? '' : 's'} ready. Connect a waiting agent, or copy or download the review.`}</p><div className="rp-actions"><button className="rp-quiet" onClick={() => void copyBatch()}>Copy review</button><button className="rp-quiet" onClick={downloadBatch}>Download review</button></div>{deliveryNote && <p className="rp-meta" role="status">{deliveryNote}</p>}</>}
-      <div className="rp-actions">{submitted ? <button className="rp-primary" onClick={newDraft}>Start another review</button> : <><button className="rp-quiet" disabled={!entries.length} onClick={reset}>Reset all</button><button className="rp-primary" disabled={!active.length} onClick={done}>Done</button></>}</div>
+      <div className="rp-actions">{submitted ? <button className="rp-primary" onClick={() => newDraft(bridgeStatus !== 'acknowledged')}>{bridgeStatus === 'acknowledged' ? 'Start another review' : 'Reset page'}</button> : <><button className="rp-quiet" disabled={!entries.length} onClick={reset}>Reset all</button><button className="rp-primary" disabled={!active.length} onClick={done}>Done</button></>}</div>
     </aside>}
 
     <div className="rp-toolbar" role="toolbar" aria-label="ReviewPlane tools">
