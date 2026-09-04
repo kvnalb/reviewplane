@@ -107,3 +107,12 @@
 - Added an explicit Vite sandbox option and demo build mode. The sandbox build includes mapping and the overlay; the ordinary production build contains neither. The public surface explains that it cannot edit the repository.
 - Added a submitted-review reset path that restores text and style previews before starting a fresh hosted review. Acknowledged cloned reviews keep the source-rendered result instead.
 - Browser verification inspected only page rendering, semantics, and sandbox loading. No ReviewPlane target was selected on `apps/demo`, no correction or batch was created, no tool was invoked, and no recording sequence was rehearsed.
+
+## Phase 9
+
+- Added a nine-scenario Playwright suite covering activation, targeting, text and style previews, lasso review, undo/reset, fallback submission, a pending WebMCP handoff, reload and stale-target behavior, narrow viewports, keyboard access, production exclusion, and source-mapping coverage.
+- Source mapping exceeds the 90 percent gate in both the dedicated fixture and the untouched Phase 8 demo. The demo check only counts mapped visible DOM; it does not select targets or rehearse the recording scene.
+- Kept the automated WebMCP bridge mocked for determinism. The real Chrome lifecycle was already verified in Phases 1, 5, and 6; the next real end-to-end use is intentionally the user's unrehearsed dogfood/recording gate.
+- Added a root README with literal clean-clone commands, the one-command initializer path, supported compatibility scope, production/sandbox boundaries, and the honest constraint that ReviewPlane cannot wake an idle coding agent.
+- Initial Playwright setup exposed and fixed an incorrect fixture root and a closed-tray test assumption. A later port failure was sandbox permission-only; the permitted rerun passed all nine tests in 10.6 seconds.
+- Reused the Phase 7 packed-package compatibility evidence for React 18/19, React/SWC, CSS Modules, Tailwind, and Radix/shadcn composition. No product code affecting that matrix changed in Phase 9.
