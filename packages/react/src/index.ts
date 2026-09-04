@@ -1,4 +1,4 @@
-export { ReviewPlane } from './ReviewPlane.tsx'
-export { LASSO_INTERSECTION_THRESHOLD } from './geometry.ts'
-export { createReviewPlaneTools, registerReviewPlaneTools } from './registerTools.ts'
-export type { ModelContext, RegisteredTool, WebMcpTool } from './webmcp-types.ts'
+export { ReviewPlane } from './ReviewPlane.js'
+export { LASSO_INTERSECTION_THRESHOLD } from './geometry.js'
+export { createReviewPlaneTools, registerReviewPlaneTools } from './registerTools.js'
+export type { ModelContext, RegisteredTool, WebMcpTool } from './webmcp-types.js'

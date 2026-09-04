@@ -1,6 +1,6 @@
 import { normalizePath, type Plugin, type ResolvedConfig } from 'vite'
-import { instrumentSource, shouldInstrument, type Exclusion, type SourceRecord } from './transform.ts'
-import { resolvedRuntimeModuleId, runtimeModuleId, runtimeSource } from './runtime.ts'
+import { instrumentSource, shouldInstrument, type Exclusion, type SourceRecord } from './transform.js'
+import { resolvedRuntimeModuleId, runtimeModuleId, runtimeSource } from './runtime.js'
 
 export type ReviewPlaneViteOptions = {
   exclude?: Exclusion[]
@@ -77,6 +77,6 @@ export function reviewplane(options: ReviewPlaneViteOptions = {}): ReviewPlaneVi
   }
 }
 
-export type { Exclusion, SourceRecord } from './transform.ts'
-export { instrumentSource, shouldInstrument } from './transform.ts'
+export type { Exclusion, SourceRecord } from './transform.js'
+export { instrumentSource, shouldInstrument } from './transform.js'
 export default reviewplane

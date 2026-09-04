@@ -1,2 +1,2 @@
-export * from './types.ts'
-export * from './store.ts'
+export * from './types.js'
+export * from './store.js'

@@ -1,21 +1,26 @@
 {
   "name": "@reviewplane/vite",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
+  "files": ["dist/index.js", "dist/*.d.ts", "README.md"],
+  "publishConfig": { "access": "public" },
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.build.json && rolldown src/index.ts --file dist/index.js --format esm --platform node --external vite --external @reviewplane/core --no-codeSplitting",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepack": "npm run build"
   },
   "peerDependencies": {
     "vite": "^8.0.0"
   },
   "dependencies": {
-    "@reviewplane/core": "*"
+    "@reviewplane/core": "^0.1.0"
   },
   "devDependencies": {
     "@babel/generator": "^8.0.0",
@@ -23,6 +28,7 @@
     "@babel/traverse": "^8.0.4",
     "@babel/types": "^8.0.4",
     "@types/node": "^26.4.1",
+    "rolldown": "^1.2.7",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",
     "vitest": "^5.0.0"

@@ -1,5 +1,5 @@
-import { reviewBridge } from './reviewBridge.ts'
-import type { ModelContext, ToolExecutionOptions, WebMcpTool } from './webmcp-types.ts'
+import { reviewBridge } from './reviewBridge.js'
+import type { ModelContext, ToolExecutionOptions, WebMcpTool } from './webmcp-types.js'
 
 const signalFrom = (execution: ToolExecutionOptions) => execution instanceof AbortSignal ? execution : execution?.signal
 

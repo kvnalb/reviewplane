@@ -9,7 +9,7 @@ import type {
   ReviewBatchStatus,
   SubmittedReview,
   Viewport,
-} from './types.ts'
+} from './types.js'
 
 export interface StorageLike {
   getItem(key: string): string | null

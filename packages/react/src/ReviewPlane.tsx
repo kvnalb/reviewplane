@@ -19,9 +19,9 @@ import {
   rectangleFromPoints,
   removeRedundantTargets,
   type Rectangle,
-} from './geometry.ts'
-import { overlayStyles } from './styles.ts'
-import { reviewBridge, type BridgeStatus } from './reviewBridge.ts'
+} from './geometry.js'
+import { overlayStyles } from './styles.js'
+import { reviewBridge, type BridgeStatus } from './reviewBridge.js'
 
 type Mode = 'idle' | 'inspect' | 'text' | 'lasso'
 type Point = { x: number; y: number }
@@ -94,6 +94,15 @@ function summary(correction: Readonly<Correction>) {
   return `${names[correction.kind]} → ${correction.requestedValue}`
 }
 
+function targetLabel(source: SourceRecord) {
+  if (/^h[1-6]$/.test(source.tag)) return 'Heading'
+  return ({ p: 'Paragraph', a: 'Link', button: 'Button', img: 'Image', nav: 'Navigation', section: 'Section', li: 'List item', input: 'Input', textarea: 'Text field' } as Record<string, string>)[source.tag] ?? 'Page element'
+}
+
+function correctionLabel(correction: Readonly<Correction>) {
+  return ({ 'text-replacement': 'Text change', 'foreground-color': 'Text color', 'background-color': 'Background color', 'font-size': 'Text size', 'group-instruction': 'Group instruction' } as const)[correction.kind]
+}
+
 export function ReviewPlane() {
   const [portal, setPortal] = useState<HTMLDivElement | null>(null)
   const [mode, setMode] = useState<Mode>('idle')
@@ -105,6 +114,7 @@ export function ReviewPlane() {
   const [trayOpen, setTrayOpen] = useState(false)
   const [version, setVersion] = useState(0)
   const [submitted, setSubmitted] = useState<Readonly<SubmittedReview> | null>(null)
+  const [deliveryNote, setDeliveryNote] = useState('')
   const [error, setError] = useState('')
   const [bridgeStatus, setBridgeStatus] = useState<BridgeStatus>('unavailable')
   const [editing, setEditing] = useState<string | null>(null)
@@ -352,27 +362,45 @@ export function ReviewPlane() {
   const mutate = (action: () => void) => { try { action(); setError(''); refresh() } catch (caught) { setError(caught instanceof Error ? caught.message : 'Action failed.') } }
   const reset = () => mutate(() => { store?.resetDraft(); setSubmitted(null) })
   const done = () => mutate(() => { const result = store!.submit(); reviewBridge.publish(result); setSubmitted(result); setMode('idle'); closePopup() })
-  const newDraft = () => mutate(() => { store!.beginDraft({ route: route(), viewport: viewport() }); setSubmitted(null) })
+  const newDraft = () => mutate(() => { store!.beginDraft({ route: route(), viewport: viewport() }); setSubmitted(null); setDeliveryNote('') })
+  const copyBatch = async () => {
+    if (!submitted) return
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(submitted, null, 2))
+      setDeliveryNote('Batch copied. Paste it into your coding agent.')
+    } catch {
+      setDeliveryNote('Copy was blocked by the browser. Use Download instead.')
+    }
+  }
+  const downloadBatch = () => {
+    if (!submitted) return
+    const url = URL.createObjectURL(new Blob([JSON.stringify(submitted, null, 2)], { type: 'application/json' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `reviewplane-${submitted.batch.id}.json`
+    link.click()
+    URL.revokeObjectURL(url)
+    setDeliveryNote('Batch downloaded. Attach it to your coding-agent task.')
+  }
 
   if (!portal || !store) return null
   const stagedGroupTargets = active.flatMap((correction) => correction.kind === 'group-instruction' ? correction.targets : [])
   return createPortal(<div className="rp-layer" aria-label="ReviewPlane review overlay">
-    {hover && mode === 'inspect' && <div className="rp-hover" style={{ left: hover.element.getBoundingClientRect().left, top: hover.element.getBoundingClientRect().top, width: hover.element.getBoundingClientRect().width, height: hover.element.getBoundingClientRect().height }}><span className="rp-hover-label">{hover.source.component ? `${hover.source.component} › ` : ''}{hover.source.tag} · {hover.source.file}:{hover.source.line}</span></div>}
+    {hover && mode === 'inspect' && <div className="rp-hover" style={{ left: hover.element.getBoundingClientRect().left, top: hover.element.getBoundingClientRect().top, width: hover.element.getBoundingClientRect().width, height: hover.element.getBoundingClientRect().height }}><span className="rp-hover-label">{targetLabel(hover.source)}</span></div>}
     {lasso && <div className="rp-lasso" style={{ left: lasso.left, top: lasso.top, width: lasso.width, height: lasso.height }}/>} 
     {selection?.kind === 'group' && selection.targets.map((target) => { const rect = target.element.getBoundingClientRect(); return <div className="rp-group-target" key={target.occurrenceId} style={{ left: rect.left, top: rect.top, width: rect.width, height: rect.height }}/> })}
     {!selection && stagedGroupTargets.map((target) => { const element = document.querySelector<HTMLElement>(`[data-rp-occurrence-id="${target.runtimeOccurrenceId}"]`); if (!element) return null; const rect = element.getBoundingClientRect(); return <div className="rp-group-target" key={target.runtimeOccurrenceId} style={{ left: rect.left, top: rect.top, width: rect.width, height: rect.height }}/> })}
 
     {selection && <div className="rp-popup" ref={popupRef} style={popupPosition}>
-      <div className="rp-head"><div><p className="rp-kicker">{selection.kind === 'direct' ? 'Direct correction' : 'Group instruction'}</p><h2>{selection.kind === 'direct' ? `${selection.target.source.tag} · ${selection.target.source.component ?? 'page'}` : `${selection.targets.length} mapped targets`}</h2></div><button className="rp-link" onClick={closePopup}>Cancel</button></div>
+      <div className="rp-head"><div><p className="rp-kicker">{selection.kind === 'direct' ? 'Edit this item' : 'Group instruction'}</p><h2>{selection.kind === 'direct' ? targetLabel(selection.target.source) : `${selection.targets.length} selected items`}</h2></div><button className="rp-link" onClick={closePopup}>Cancel</button></div>
       {selection.kind === 'direct' ? <>
-        <p className="rp-meta">{selection.target.source.file}:{selection.target.source.line} · {selection.target.occurrenceId}</p>
         {selection.selectedText && <label className="rp-field"><span>Replacement text</span><textarea value={replacement} onChange={(event) => setReplacement(event.target.value)}/></label>}
         {!selection.selectedText && <p className="rp-meta">This target was picked as an element. Add one or more style changes below.</p>}
         <div className="rp-grid"><label className="rp-field"><span>Foreground color</span><input placeholder="e.g. #1f2937" value={foreground} onChange={(event) => setForeground(event.target.value)}/></label><label className="rp-field"><span>Background color</span><input placeholder="e.g. #fff7ed" value={background} onChange={(event) => setBackground(event.target.value)}/></label></div>
         <div className="rp-grid"><label className="rp-field"><span>Font size</span><input placeholder="e.g. 56px" value={fontSize} onChange={(event) => setFontSize(event.target.value)}/></label><label className="rp-field"><span>Scope</span><select value={scope} onChange={(event) => setScope(event.target.value as ReviewScope)}><option value="element">This element</option><option value="matching-instances">Matching instances</option></select></label></div>
       </> : <>
         {selection.selectedText && <p className="rp-meta">Cross-element text is captured as context only; ReviewPlane will not fake a rewrite preview.</p>}
-        <div className="rp-targets">{selection.targets.map((target) => <div className="rp-target" key={target.occurrenceId}><code>{target.source.tag} · {target.source.file}:{target.source.line}</code><button className="rp-link rp-danger" onClick={() => removeTarget(target.occurrenceId)}>Remove</button></div>)}</div>
+        <div className="rp-targets">{selection.targets.map((target, index) => <div className="rp-target" key={target.occurrenceId}><span>{index + 1}. {targetLabel(target.source)}</span><button className="rp-link rp-danger" onClick={() => removeTarget(target.occurrenceId)}>Remove</button></div>)}</div>
         <label className="rp-field"><span>Instruction for this group</span><textarea placeholder="What should your coding agent change?" value={instruction} onChange={(event) => setInstruction(event.target.value)}/></label>
       </>}
       {error && <p className="rp-meta rp-stale">{error}</p>}
@@ -381,14 +409,14 @@ export function ReviewPlane() {
 
     {trayOpen && <aside className="rp-tray">
       <div className="rp-head"><div><p className="rp-kicker">Correction tray</p><h3>{active.length} pending</h3></div><button className="rp-link" onClick={() => setTrayOpen(false)}>Hide</button></div>
-      <p className="rp-meta rp-status">{bridgeStatus === 'waiting' ? 'Agent waiting · connected' : bridgeStatus === 'batch-ready' ? 'Batch ready · saved' : bridgeStatus === 'acknowledged' ? 'Agent acknowledged batch' : bridgeStatus === 'ready' ? 'WebMCP · ready' : 'Local browser · no WebMCP host'}</p>
+      <p className="rp-meta rp-status">{bridgeStatus === 'waiting' ? 'Agent connected and waiting' : bridgeStatus === 'batch-ready' ? 'Review saved' : bridgeStatus === 'acknowledged' ? 'Agent finished this review' : bridgeStatus === 'ready' ? 'Ready for your coding agent' : 'No agent connection · copy after Done'}</p>
       {entries.length === 0 ? <p className="rp-empty">Select page text or lasso a region to stage your first correction.</p> : <div className="rp-corrections">{entries.map(({ correction, active: isActive }, index) => <div className="rp-correction" key={correction.id}>
-        <div className="rp-correction-head"><code>{String(index + 1).padStart(2, '0')} · {correction.kind}<br/>{correction.sourceRecord.file}:{correction.sourceRecord.line}</code>{correction.staleTarget && <span className="rp-stale">stale target</span>}</div>
+        <div className="rp-correction-head"><strong>{String(index + 1).padStart(2, '0')} · {correctionLabel(correction)} · {targetLabel(correction.sourceRecord)}</strong>{correction.staleTarget && <span className="rp-stale">Page changed · select again</span>}</div>
         <p className="rp-summary" style={{ opacity: isActive ? 1 : .5 }}>{isActive ? summary(correction) : `Undone · ${summary(correction)}`}</p>
         {editing === correction.id ? <div className="rp-edit"><input value={editValue} onChange={(event) => setEditValue(event.target.value)}/><button className="rp-link" onClick={() => mutate(() => { store.editCorrection(correction.id, { requestedValue: editValue }); setEditing(null) })}>Save</button></div> : isActive && <div className="rp-actions"><button className="rp-link" onClick={() => { setEditing(correction.id); setEditValue(correction.requestedValue) }}>Edit</button><button className="rp-link" onClick={() => mutate(() => store.undoCorrection(correction.id))}>Undo</button><button className="rp-link rp-danger" onClick={() => mutate(() => store.removeCorrection(correction.id))}>Remove</button></div>}
       </div>)}</div>}
       {error && !selection && <p className="rp-meta rp-stale">{error}</p>}
-      {submitted && <><p className="rp-meta">Batch status: {submitted.batch.status}. No idle agent wake-up is implied; a waiting or later-connected agent can retrieve a ready batch.</p><pre className="rp-payload">{JSON.stringify(submitted, null, 2)}</pre></>}
+      {submitted && <><p className="rp-meta">{bridgeStatus === 'waiting' ? `Your waiting agent received ${submitted.corrections.length} change${submitted.corrections.length === 1 ? '' : 's'}.` : `${submitted.corrections.length} change${submitted.corrections.length === 1 ? '' : 's'} ready. Connect a waiting agent, or copy or download the review.`}</p><div className="rp-actions"><button className="rp-quiet" onClick={() => void copyBatch()}>Copy review</button><button className="rp-quiet" onClick={downloadBatch}>Download review</button></div>{deliveryNote && <p className="rp-meta" role="status">{deliveryNote}</p>}</>}
       <div className="rp-actions">{submitted ? <button className="rp-primary" onClick={newDraft}>Start another review</button> : <><button className="rp-quiet" disabled={!entries.length} onClick={reset}>Reset all</button><button className="rp-primary" disabled={!active.length} onClick={done}>Done</button></>}</div>
     </aside>}
 

@@ -32,7 +32,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .rp-targets, .rp-corrections { display: grid; gap: 8px; margin: 12px 0; }
 .rp-target, .rp-correction { border: 1px solid #d5ddd8; background: white; padding: 10px; }
 .rp-target, .rp-correction-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 9px; }
-.rp-target code, .rp-correction code { color: #627069; font: 10px/1.5 ui-monospace, monospace; overflow-wrap: anywhere; }
+.rp-target span, .rp-correction-head strong { color: #526058; font-size: 11px; overflow-wrap: anywhere; }
 .rp-link { min-height: 30px; border: 0; border-bottom: 1px solid currentColor; background: transparent; color: #3457d5; padding: 0 3px; font-size: 11px; font-weight: 700; }
 .rp-danger { color: #be3227; }
 .rp-summary { margin: 7px 0 0; font-size: 12px; }
@@ -42,7 +42,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .rp-empty { padding: 28px 16px; color: #627069; text-align: center; }
 .rp-edit { margin-top: 8px; display: flex; gap: 6px; }
 .rp-edit input { min-width: 0; flex: 1; border: 1px solid #aebbb4; padding: 7px; }
-.rp-payload { max-height: 210px; margin: 10px 0; padding: 10px; overflow: auto; border: 1px solid #d5ddd8; background: #222c27; color: #e9efec; white-space: pre-wrap; font: 10px/1.45 ui-monospace, monospace; }
 button:disabled { cursor: not-allowed; opacity: .45; }
 @keyframes rp-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .rp-popup, .rp-tray, .rp-hover { animation: none; transition: none; } }

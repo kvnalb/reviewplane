@@ -37,11 +37,13 @@ ReviewPlane has four responsibilities:
 
 ReviewPlane does not rewrite source files. The coding agent remains responsible for understanding the repository, choosing the correct implementation, editing source, and validating the result.
 
+The primary user is a vibe coder who wants to point at the rendered result and state what should change without first learning the source tree. The default path is one setup command, a visual review, and one **Done** action. Source provenance and mapping confidence remain internal implementation details; user-facing failures use plain language and an actionable next step.
+
 ### Supported MVP target
 
-- React
+- React 18 and React 19
 - TypeScript
-- Vite
+- Vite React and Vite React SWC
 - JSX and TSX
 - Static text
 - Text supplied through ordinary component props
@@ -51,6 +53,9 @@ ReviewPlane does not rewrite source files. The coding agent remains responsible 
 - Inline styles
 - Chrome with WebMCP enabled
 - In-app browsers that expose a page’s WebMCP tools
+- CSS Modules fixtures
+- Tailwind fixtures
+- shadcn/ui and Radix composition fixtures
 
 ### Explicit non-goals
 
@@ -139,6 +144,8 @@ Done has two valid outcomes.
 4. An agent that connects later may retrieve the batch.
 
 The page must never claim that Done started a new idle agent turn.
+
+When WebMCP is unavailable or no compatible agent can retrieve the batch, Done must offer a copy and download fallback for the structured review batch. Do not expose source provenance or confidence controls in the primary review UI.
 
 ### F. Hosted and cloned modes
 
@@ -666,10 +673,10 @@ Implement:
 - Toolbar activation
 - Documented keyboard shortcut
 - Stable hover outlines
-- Component breadcrumb
-- Element tag
-- Source file and line
+- Plain-language target labels
 - Clear mode-exit behavior
+
+Keep component, element, source-file, line, and mapping-confidence evidence in the structured batch for the coding agent. Do not show that provenance in the primary human review interface.
 
 Disable application clicks while inspect or lasso mode captures input.
 
@@ -1005,6 +1012,8 @@ npx reviewplane init
 npx reviewplane check
 ```
 
+The install experience is a release requirement, not optional polish. The finished package must be versioned and ready for a developer to install the next day. Publishing to npm is performed only after the user explicitly approves the release.
+
 ## `reviewplane init`
 
 Implement:
@@ -1018,6 +1027,8 @@ Implement:
 - `--dry-run`
 - Idempotency
 - Manual fallback instructions for unsupported Vite configuration shapes
+
+The normal successful path should require only `npx reviewplane init`. Keep diagnostics and warnings in plain language, with exact remediation commands where possible.
 
 Do not attempt to rewrite arbitrary build systems.
 
@@ -1051,7 +1062,16 @@ https://eslint.org/docs/latest/extend/custom-rules
 
 ## External-package test
 
-Test packed packages outside the monorepo:
+Test packed packages outside the monorepo across this explicit compatibility matrix:
+
+- React 18 with Vite React
+- React 19 with Vite React
+- Vite React SWC
+- CSS Modules
+- Tailwind
+- shadcn/ui or equivalent Radix composition
+
+For every fixture:
 
 1. Run `npm pack`.
 2. Create a fresh Vite React application.
@@ -1068,17 +1088,24 @@ https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/
 
 ## Phase 7 acceptance gate
 
-A clean external React and Vite application can install the packed SDK, complete the review loop, and produce a production build without ReviewPlane code.
+A clean application in every supported fixture can install the packed SDK through `npx reviewplane init`, complete the review loop, and produce a production build without ReviewPlane code. Packages have non-placeholder release versions and their packed contents are suitable for publication. Actual npm publication waits for explicit user approval.
 
 ---
 
-# Phase 8: Dogfood ReviewPlane on its own landing page
+# Phase 8: Prepare the untouched human-demo sandbox
 
-Return to the frozen baseline landing page.
+Prepare a fresh React landing page for the finished ReviewPlane package from:
 
-Use ReviewPlane to correct genuine residual problems. Do not script artificial defects.
+- `docs/product-brief.md`
+- `docs/design-decision.md`
+- `apps/landing/DESIGN.md`
+- A recorded generation prompt derived from those inputs
 
-The dogfood pass must include:
+This page is the human dogfood and recording surface. It must be plausible and complete, but it must not be pre-reviewed with ReviewPlane by the implementing agent.
+
+The implementing agent may verify setup, loading, selection mechanics against separate fixtures. It must not pick corrections, stage a batch, press Done, patch the demo page, or rehearse the live scene. That preserves a genuine first review for the user.
+
+Prepare the surface so the later human pass can include:
 
 1. Rewrite weak hero copy through text selection.
 2. Correct a real font-size ratio.
@@ -1087,16 +1114,10 @@ The dogfood pass must include:
 5. Lasso a repeated section.
 6. Add a hierarchy or density instruction.
 7. Show several corrections in the tray.
-8. Press Done once.
-9. Let Codex edit the React source.
+8. Press Done once while Codex is already waiting.
+9. Let Codex receive the batch and then edit the React source.
 10. Show the source diff.
 11. Show the live rerender.
-
-Commit and tag the agent-applied result:
-
-```bash
-git tag reviewplane-edited
-```
 
 ## Landing-page requirements
 
@@ -1106,7 +1127,7 @@ The public landing page should contain:
 - A **Start reviewing this page** action
 - The interactive ReviewPlane experience
 - Correction tray
-- Payload viewer for visitors without a waiting agent
+- Plain-language submitted-batch summary plus copy/download fallback for visitors without a waiting agent
 - Before-and-after comparison backed by the real baseline
 - Clone instructions
 - SDK installation instructions
@@ -1130,15 +1151,16 @@ Default consumer production builds must exclude ReviewPlane.
 
 ## Phase 8 acceptance gate
 
-- ReviewPlane has improved its own baseline landing page.
-- The before state comes from the tagged agent-generated baseline.
-- The after state comes from a real ReviewPlane batch applied by Codex.
+- A fresh landing page has been generated from the approved brief, design system, and recorded prompt.
+- The page has not been reviewed, corrected, or rehearsed through ReviewPlane by the implementing agent.
+- ReviewPlane is installed through the release-candidate package path.
 - The public sandbox works without repository write access.
 - The cloned mode supports the real source-editing loop.
+- The user can begin a first-take review while Codex waits for the batch.
 
 ---
 
-# Phase 9: Test the complete product path
+# Phase 9: Harden the complete product path
 
 Use Playwright for browser behavior.
 
@@ -1188,6 +1210,22 @@ A mocked tool bridge does not satisfy the real-browser gate.
 - The hosted sandbox cannot mutate the repository.
 - The complete demo flow can be performed reliably several times.
 
+The compatibility matrix must pass on React 18, React 19, Vite React, Vite React SWC, CSS Modules, Tailwind, and shadcn/Radix fixtures. Next.js remains roadmap work.
+
+## Human dogfood and recording gate
+
+After Phase 9 hardening passes, stop and hand control to the user.
+
+During the live take:
+
+1. Codex calls `wait_for_review` and waits.
+2. The user performs the first ReviewPlane review on the untouched Phase 8 page and records it.
+3. The user presses Done once.
+4. Codex retrieves the real batch, edits source, validates, shows the diff, and acknowledges the corrections.
+5. Commit and tag the applied result as `reviewplane-edited`.
+
+Do not begin Phase 10 until the user approves the recorded take and the resulting page.
+
 ---
 
 # Phase 10: Prepare the public submission
@@ -1209,6 +1247,8 @@ The repository must include:
 - Security and privacy notes
 - Live application URL
 - Public demo-video URL
+
+Prepare versioned packages and release notes. Publishing packages to npm is a release action and requires the user’s explicit approval immediately before publication.
 
 The current Devpost requirements call for:
 
@@ -1249,7 +1289,7 @@ If an agent helped compare the alternatives, show that comparison.
 
 Keep this section visual and compressed.
 
-### 0:40 to 0:55: Show baseline generation
+### 0:40 to 0:55: Show fresh demo-page generation
 
 Show Codex receiving:
 
@@ -1260,7 +1300,7 @@ Show Codex receiving:
 
 Speed up the implementation and verification footage.
 
-End on the unedited page Codex considered complete.
+End on the untouched fresh page Codex considered complete. This is the same page the user reviews for the first time in the live take.
 
 ### 0:55 to 1:08: Identify the residual problem
 
@@ -1287,7 +1327,7 @@ Show the human:
 
 Press Done once.
 
-Show Codex receiving the structured batch without another prose prompt.
+Show Codex, already waiting, receiving the structured batch without another prose prompt.
 
 ### 2:18 to 2:38: Apply the source changes
 
@@ -1336,8 +1376,9 @@ The submission requires:
 - Honest Done behavior
 - A real WebMCP review batch
 - A coding agent applying the batch to source
-- The dogfooded landing page
+- A fresh, human-dogfooded landing page
 - A clean-clone path
+- Versioned, publication-ready npm packages
 - A live hosted sandbox
 - A public repository
 - An open-source license
@@ -1345,11 +1386,12 @@ The submission requires:
 
 If time becomes constrained, cut work in this order:
 
-1. Public npm publication
-2. Automatic rewriting of unfamiliar Vite configurations
-3. Custom ESLint rules
-4. Broad compatibility reporting
-5. Additional styling controls
+1. Automatic rewriting of unfamiliar Vite configurations
+2. Custom ESLint rules
+3. Compatibility reporting beyond the explicit supported matrix
+4. Additional styling controls
+
+Do not cut package readiness, versioning, or the `npx reviewplane init` path. Do not publish without explicit user approval.
 
 Do not cut the central demonstration:
 

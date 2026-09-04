@@ -80,3 +80,20 @@
 - The skill validator could not start because its own Python environment lacks PyYAML. Frontmatter and required fields were checked with Ruby's standard YAML parser instead; no skill package dependency was added to the product for a validator-only need.
 - Ran the acceptance path through a real active Chrome `wait_for_review`: retrieved a JSX text replacement, a foreground-color correction, and a nine-target lasso instruction; traced them to `App.tsx` and `App.css`; applied one minimal patch; passed typecheck, lint, 22 tests, production build, and live visual inspection; then acknowledged all three exact IDs as applied.
 - Kept the development host harness honest and reusable: it now waits and retrieves without auto-acknowledging. The acknowledgement control is enabled only after retrieval, so Codex can apply and validate source before recording success.
+
+## Direction update before Phase 7 completion
+
+- Reassigned the final dogfood take to the user. Phase 8 now prepares a fresh, untouched demo page; after Phase 9 hardening, Codex waits while the user performs and records the first live review, then applies that real batch.
+- Raised installability from a cuttable item to a release requirement: versioned packages and `npx reviewplane init` must be ready for next-day use, while npm publication remains behind an explicit user approval gate.
+- Expanded the supported fixture matrix to React 18 and 19, Vite React and React SWC, CSS Modules, Tailwind, and shadcn/Radix. Next.js remains a documented roadmap item.
+- Made the primary experience vibe-coder-first: one setup command, no provenance or confidence UI, plain-language warnings, and copy/download fallback when WebMCP delivery is unavailable.
+
+## Phase 7
+
+- Published package boundaries now use version `0.1.0`, public publish metadata, compiled JavaScript, declaration files, and file allowlists. npm publication itself remains intentionally unperformed pending the release approval gate.
+- Bundled the Vite plugin's Babel implementation into its development package while leaving Vite and `@reviewplane/core` external. This avoids asking every consumer to compile package TypeScript or resolve Babel internals and keeps the runtime absent from production builds.
+- Made `reviewplane init` install the two SDK packages through the detected package manager on the normal path. Dry runs report the exact install action, repeated initialization is a no-op, and unfamiliar Vite config shapes still receive manual instructions.
+- Kept `reviewplane check` as a diagnostic command but changed its default output to plain-language pass/fix messages; `--json` remains available for CI.
+- Added copy and JSON-download actions after Done so a user without WebMCP can still hand the same structured batch to a coding agent.
+- Exercised packed `0.1.0` artifacts in three clean external fixtures: React 18 + Vite React + CSS Modules, React 19 + Vite React SWC + Tailwind, and React 19 + Vite React + Radix/shadcn-style composition. Every fixture initialized, mapped its local JSX, submitted a real browser correction, exposed the fallback, built successfully, and excluded ReviewPlane from production.
+- Did not add ESLint rules. The CLI already reports the three reliably detectable cases from this phase (`dangerouslySetInnerHTML`, canvas, and likely external ownership), so a second configuration surface would not improve the MVP setup path.
