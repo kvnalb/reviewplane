@@ -26,6 +26,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .rp-field { display: grid; gap: 5px; margin-top: 11px; }
 .rp-field span { color: #526058; font-size: 11px; font-weight: 700; }
 .rp-field input, .rp-field textarea, .rp-field select { width: 100%; border: 1px solid #aebbb4; border-radius: 2px; background: white; color: #17211c; padding: 9px 10px; }
+.rp-field output { float: right; color: #17211c; font: 600 11px ui-monospace, monospace; }
+.rp-color-control { display: grid; grid-template-columns: 42px 1fr; gap: 6px; }
+.rp-field .rp-color-control input[type=color] { height: 38px; padding: 4px; cursor: pointer; }
+.rp-field input[type=range] { height: 38px; padding: 0; accent-color: #3457d5; cursor: pointer; }
 .rp-field textarea { min-height: 78px; resize: vertical; }
 .rp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .rp-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 7px; margin-top: 14px; }

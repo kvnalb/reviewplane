@@ -46,6 +46,18 @@ function textFingerprint(value: string) {
   return `${value.length}:${(hash >>> 0).toString(16)}`
 }
 
+function colorPickerValue(value: string) {
+  if (/^#[\da-f]{6}$/i.test(value)) return value
+  const channels = value.match(/[\d.]+/g)?.slice(0, 3).map(Number)
+  if (!channels || channels.length < 3) return '#000000'
+  return `#${channels.map((channel) => Math.round(channel).toString(16).padStart(2, '0')).join('')}`
+}
+
+function fontSliderValue(value: string) {
+  const parsed = Number.parseFloat(value)
+  return Number.isFinite(parsed) ? Math.min(120, Math.max(8, parsed)) : 16
+}
+
 function directTextNode(element: HTMLElement) {
   const nodes = [...element.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE && node.nodeValue?.trim())
   return nodes.length === 1 ? nodes[0] as Text : null
@@ -418,8 +430,8 @@ export function ReviewPlane() {
       {selection.kind === 'direct' ? <>
         {selection.selectedText && <label className="rp-field"><span>Replacement text</span><textarea value={replacement} onChange={(event) => setReplacement(event.target.value)}/></label>}
         {!selection.selectedText && <p className="rp-meta">This target was picked as an element. Add one or more style changes below.</p>}
-        <div className="rp-grid"><label className="rp-field"><span>Foreground color</span><input value={foreground} onChange={(event) => setForeground(event.target.value)}/></label><label className="rp-field"><span>Background color</span><input value={background} onChange={(event) => setBackground(event.target.value)}/></label></div>
-        <div className="rp-grid"><label className="rp-field"><span>Font size</span><input value={fontSize} onChange={(event) => setFontSize(event.target.value)}/></label><label className="rp-field"><span>Scope</span><select value={scope} onChange={(event) => setScope(event.target.value as ReviewScope)}><option value="element">This element</option><option value="matching-instances">Matching instances</option></select></label></div>
+        <div className="rp-grid"><label className="rp-field"><span>Foreground color</span><span className="rp-color-control"><input type="color" aria-label="Choose foreground color" value={colorPickerValue(foreground)} onChange={(event) => setForeground(event.target.value)}/><input aria-label="Foreground color" value={foreground} onChange={(event) => setForeground(event.target.value)}/></span></label><label className="rp-field"><span>Background color</span><span className="rp-color-control"><input type="color" aria-label="Choose background color" value={colorPickerValue(background)} onChange={(event) => setBackground(event.target.value)}/><input aria-label="Background color" value={background} onChange={(event) => setBackground(event.target.value)}/></span></label></div>
+        <div className="rp-grid"><label className="rp-field"><span>Font size <output>{fontSize}</output></span><input type="range" aria-label="Font size" min="8" max="120" step="0.5" value={fontSliderValue(fontSize)} onChange={(event) => setFontSize(`${event.target.value}px`)}/></label><label className="rp-field"><span>Scope</span><select value={scope} onChange={(event) => setScope(event.target.value as ReviewScope)}><option value="element">This element</option><option value="matching-instances">Matching instances</option></select></label></div>
       </> : <>
         {selection.selectedText && <p className="rp-meta">Cross-element text is captured as context only; ReviewPlane will not fake a rewrite preview.</p>}
         <div className="rp-targets">{selection.targets.map((target, index) => <div className="rp-target" key={target.occurrenceId}><span>{index + 1}. {targetLabel(target.source)}</span><button className="rp-link rp-danger" onClick={() => removeTarget(target.occurrenceId)}>Remove</button></div>)}</div>
