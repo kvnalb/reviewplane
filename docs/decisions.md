@@ -103,3 +103,9 @@
 - Hosted sandbox is an explicit Vite/plugin mode (`mode: 'sandbox'` / `VITE_REVIEWPLANE_SANDBOX=true`) that may include ReviewPlane in a deployed landing build. Ordinary consumer production builds still exclude it.
 - Softened overlay copy for vibe-coder ICP: no source-path jargon in primary UI, plain-language connection status, Done offers copy/download when no agent waits, sandbox banner explains no public-repo mutation.
 - Added `docs/dogfood-recording-checklist.md` for the human operator. This phase does not submit demo corrections or record video.
+
+## Phase 9
+
+- Added Playwright suite under `tests/e2e` with Vite `webServer` startup. Core flows covered: overlay activation, text staging + Done without agent, middle undo/reset, mocked WebMCP waiter with all four tools, narrow viewport.
+- Mapping coverage remains enforced by fixture unit tests (≥90%). Pack smoke remains the external install release check.
+- Real Chrome WebMCP with the testing flag stays a manual gate; mocked tools do not satisfy that gate.

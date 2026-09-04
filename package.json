@@ -17,7 +17,7 @@
     "build": "npm run build:packages && npm run build --workspace @reviewplane/landing",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "test:e2e": "npm run test:e2e --workspace @reviewplane/e2e --if-present",
+    "test:e2e": "npm run test:e2e --workspace @reviewplane/e2e",
     "test:pack": "npm run test:pack --workspace reviewplane",
     "pack:packages": "npm run build:packages && npm pack --workspace @reviewplane/core --workspace @reviewplane/vite --workspace @reviewplane/react --workspace reviewplane --pack-destination /tmp/reviewplane-packs"
   },
