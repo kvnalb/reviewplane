@@ -445,7 +445,7 @@ export function ReviewPlane() {
 
     {trayOpen && <aside className={`rp-tray${submitted ? ' rp-tray-submitted' : ''}`}>
       <div className="rp-head"><div><p className="rp-kicker">{submitted ? 'Review complete' : 'Correction tray'}</p><h3>{submitted ? `${submitted.corrections.length} change${submitted.corrections.length === 1 ? '' : 's'} ready` : `${active.length} pending`}</h3></div><button className="rp-link" onClick={() => setTrayOpen(false)}>Hide</button></div>
-      {!submitted && <p className="rp-meta rp-status">{bridgeStatus === 'waiting' ? 'Agent connected and waiting' : bridgeStatus === 'ready' ? 'Ready for your coding agent' : 'No agent connection · copy after Done'}</p>}
+      {!submitted && <p className={`rp-meta rp-status${bridgeStatus === 'waiting' ? ' is-connected' : ''}`}>{bridgeStatus === 'waiting' ? 'Agent connected and waiting' : bridgeStatus === 'ready' ? 'Ready for your coding agent' : 'No agent connection · copy after Done'}</p>}
       {!submitted && (entries.length === 0 ? <p className="rp-empty">Select page text or lasso a region to stage your first correction.</p> : <div className="rp-corrections">{entries.map(({ correction, active: isActive }, index) => <div className="rp-correction" key={correction.id}>
         <div className="rp-correction-head"><strong>{String(index + 1).padStart(2, '0')} · {correctionLabel(correction)} · {targetLabel(correction.sourceRecord)}</strong>{correction.staleTarget && <span className="rp-stale">Page changed · select again</span>}</div>
         <p className="rp-summary" style={{ opacity: isActive ? 1 : .5 }}>{isActive ? summary(correction) : `Undone · ${summary(correction)}`}</p>

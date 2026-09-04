@@ -128,3 +128,5 @@
 - Moved fresh landing-page generation to the final recording gate. The recording page will be created only after the package loop is stable and will not be pre-reviewed before the live take.
 - Added a reproducible `pack:release` command and exact pre-publication tarball setup instructions. npm publication remains behind the explicit release approval gate.
 - The first release-pack attempt hit root-owned files in the user's global npm cache. The repository pack script now uses an ignored local `.npm-cache` instead of requiring `sudo` or changing global ownership.
+- Restyled the injected overlay with dependency-free, shadcn-like component structure and restrained Linear/Vercel-inspired glass surfaces. Kept the implementation inside the package's Shadow DOM instead of adding Tailwind/shadcn runtime dependencies that would increase bundle weight or couple the overlay to consumer styling.
+- The focused design regression test caught the new hover outline intercepting clicks. Hover, lasso, and staged-target visuals now explicitly ignore pointer events rather than relying on the parent layer's behavior.
