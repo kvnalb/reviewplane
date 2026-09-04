@@ -92,6 +92,22 @@ describe('Vite plugin', () => {
     expect(sandboxApplies({}, { command: 'build' })).toBe(true)
   })
 
+  it('emits the source manifest for a hosted sandbox build', async () => {
+    const plugin = reviewplane({ sandbox: true })
+    await (plugin.configResolved as never as (config: { root: string }) => void)({ root })
+    await (plugin.transform as never as (code: string, id: string) => unknown)(
+      'export function App() { return <main>Sandbox</main> }',
+      `${root}/src/App.tsx`,
+    )
+
+    let asset: { type: string; fileName: string; source: string } | undefined
+    const generate = plugin.generateBundle as never as (this: { emitFile: (value: typeof asset) => void }) => void
+    generate.call({ emitFile: (value) => { asset = value } })
+
+    expect(asset?.fileName).toBe('__reviewplane/manifest.json')
+    expect(JSON.parse(asset?.source ?? '{}').records).toEqual(plugin.api.getManifest())
+  })
+
   it('refreshes the manifest during hot updates and serves the endpoint', async () => {
     const plugin = reviewplane()
     const file = `${root}/src/App.tsx`

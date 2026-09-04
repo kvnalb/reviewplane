@@ -62,6 +62,14 @@ export function reviewplane(options: ReviewPlaneViteOptions = {}): ReviewPlaneVi
         response.end(JSON.stringify({ revision, records: currentManifest() }, null, 2))
       })
     },
+    generateBundle() {
+      if (!options.sandbox) return
+      this.emitFile({
+        type: 'asset',
+        fileName: MANIFEST_PATH.slice(1),
+        source: JSON.stringify({ revision, records: currentManifest() }, null, 2),
+      })
+    },
     resolveId(id) {
       if (id === runtimeModuleId) return resolvedRuntimeModuleId
     },
