@@ -79,7 +79,8 @@ export function reviewplane(options: ReviewPlaneViteOptions = {}): ReviewPlaneVi
     transformIndexHtml() {
       return [{
         tag: 'script',
-        attrs: { type: 'module', src: `/@id/__x00__${runtimeModuleId}` },
+        attrs: { type: 'module' },
+        children: runtimeSource,
         injectTo: 'head-prepend',
       }]
     },
