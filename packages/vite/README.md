@@ -1,5 +1,7 @@
 # `@reviewplane/vite`
 
+> **Early release:** ReviewPlane `0.1.0` is experimental software. It may contain bugs or behave unexpectedly with unsupported React or Vite configurations.
+
 Development-only Vite instrumentation for ReviewPlane.
 
 ```ts

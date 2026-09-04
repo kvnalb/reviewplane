@@ -1,6 +1,7 @@
 {
   "name": "@reviewplane/core",
   "version": "0.1.0",
+  "description": "Early-release correction schemas and review state for ReviewPlane.",
   "type": "module",
   "exports": {
     ".": {

@@ -1,5 +1,7 @@
 # ReviewPlane CLI
 
+> **Early release:** ReviewPlane `0.1.0` is experimental software. It may contain bugs or behave unexpectedly with unsupported React or Vite configurations.
+
 Add ReviewPlane to an existing React + Vite app:
 
 ```bash

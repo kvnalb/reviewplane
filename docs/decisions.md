@@ -130,3 +130,4 @@
 - The first release-pack attempt hit root-owned files in the user's global npm cache. The repository pack script now uses an ignored local `.npm-cache` instead of requiring `sudo` or changing global ownership.
 - Restyled the injected overlay with dependency-free, shadcn-like component structure and restrained Linear/Vercel-inspired glass surfaces. Kept the implementation inside the package's Shadow DOM instead of adding Tailwind/shadcn runtime dependencies that would increase bundle weight or couple the overlay to consumer styling.
 - The focused design regression test caught the new hover outline intercepting clicks. Hover, lasso, and staged-target visuals now explicitly ignore pointer events rather than relying on the parent layer's behavior.
+- Added a concise experimental-release disclosure to the repository, setup guide, packaged READMEs, and npm package descriptions. Omitted prescriptive language about reviewing or committing changes at the user's request.

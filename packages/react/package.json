@@ -1,6 +1,7 @@
 {
   "name": "@reviewplane/react",
   "version": "0.1.0",
+  "description": "Early-release React visual review overlay and WebMCP bridge for ReviewPlane.",
   "type": "module",
   "exports": {
     ".": {

@@ -2,6 +2,8 @@
 
 Review a React page by clicking the page itself. ReviewPlane turns text, color, type-size, and grouped layout feedback into one structured batch that a coding agent can apply to source.
 
+> **Early release:** ReviewPlane `0.1.0` is experimental software. It may contain bugs or behave unexpectedly with unsupported React or Vite configurations.
+
 ReviewPlane is a development tool. Ordinary production builds contain neither the overlay nor its source-mapping metadata. A separately enabled sandbox build can host the browser-only preview surface, but it cannot change a repository.
 
 ## Try this repository

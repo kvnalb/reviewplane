@@ -1,6 +1,7 @@
 {
   "name": "reviewplane",
   "version": "0.1.0",
+  "description": "Early-release CLI for adding ReviewPlane visual review to React and Vite apps.",
   "type": "module",
   "bin": { "reviewplane": "dist/cli.js" },
   "files": ["dist/cli.js", "dist/cli.d.ts", "templates", "README.md"],

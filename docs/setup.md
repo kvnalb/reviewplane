@@ -2,6 +2,8 @@
 
 ReviewPlane supports React 18 or 19 applications using Vite React or Vite React SWC. It is development-only unless the application deliberately enables the non-writing hosted sandbox mode.
 
+> **Early release:** ReviewPlane `0.1.0` is experimental software. It may contain bugs or behave unexpectedly with unsupported React or Vite configurations.
+
 ## Try the repository demo
 
 ```bash

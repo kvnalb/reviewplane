@@ -1,6 +1,7 @@
 {
   "name": "@reviewplane/vite",
   "version": "0.1.0",
+  "description": "Early-release Vite source-mapping plugin for ReviewPlane.",
   "type": "module",
   "exports": {
     ".": {

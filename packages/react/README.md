@@ -1,5 +1,7 @@
 # @reviewplane/react
 
+> **Early release:** ReviewPlane `0.1.0` is experimental software. It may contain bugs or behave unexpectedly with unsupported React or Vite configurations.
+
 Development-only React overlay for ReviewPlane. It mounts controls through a portal into a Shadow DOM host, leaving the consumer application's layout untouched.
 
 ## Interaction model
